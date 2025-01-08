@@ -3,7 +3,7 @@ name: Upload to Azure and Get Download Link
 on:
   push:
     branches:
-      - main  # Adjust this to your target branch
+      - main
 
 jobs:
   upload-to-azure:
@@ -19,21 +19,20 @@ jobs:
     - name: Zip the text file
       run: zip simple.zip simple.txt
 
-    - name: Install Azure CLI
-      uses: azure/CLI@v1
-
     - name: Upload file to Azure Storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az storage blob upload \
+            --account-name $AZURE_STORAGE_ACCOUNT \
+            --account-key $AZURE_STORAGE_KEY \
+            --container-name $AZURE_CONTAINER \
+            --file simple.zip \
+            --name simple.zip
       env:
         AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
         AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
         AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
-      run: |
-        az storage blob upload \
-          --account-name $AZURE_STORAGE_ACCOUNT \
-          --account-key $AZURE_STORAGE_KEY \
-          --container-name $AZURE_CONTAINER \
-          --file simple.zip \
-          --name simple.zip
 
     - name: Generate Download Link
       id: get-link
