@@ -1,0 +1,51 @@
+name: Upload to Azure and Get Download Link
+
+on:
+  push:
+    branches:
+      - main  # Adjust this to your target branch
+
+jobs:
+  upload-to-azure:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Create a text file
+      run: echo "This is a simple text file." > simple.txt
+
+    - name: Zip the text file
+      run: zip simple.zip simple.txt
+
+    - name: Install Azure CLI
+      uses: azure/CLI@v1
+
+    - name: Upload file to Azure Storage
+      env:
+        AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+        AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+        AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+      run: |
+        az storage blob upload \
+          --account-name $AZURE_STORAGE_ACCOUNT \
+          --account-key $AZURE_STORAGE_KEY \
+          --container-name $AZURE_CONTAINER \
+          --file simple.zip \
+          --name simple.zip
+
+    - name: Generate Download Link
+      id: get-link
+      env:
+        AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+        AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+      run: |
+        echo "https://${AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/${AZURE_CONTAINER}/simple.zip" > download_link.txt
+        cat download_link.txt
+      # Save the link as an output variable
+      outputs:
+        link: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/${{ secrets.AZURE_CONTAINER }}/simple.zip
+
+    - name: Show Download Link
+      run: echo "Download link: ${{ steps.get-link.outputs.link }}"
