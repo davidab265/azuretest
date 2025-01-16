@@ -105,18 +105,16 @@ jobs:
           source .env
           pwd
           ls -la
-          source $GITHUB_WORKSPACE/.env
-          pwd
-          ls -la $GITHUB_WORKSPACE
-          envsubst < $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
-          envsubst < $GITHUB_WORKSPACE/stuff/docker-compose-template.txt > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
+          ls -la 
+          envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
+          envsubst < stuff/images-list-template.txt > getapp-images-list.txt
+          envsubst < stuff/docker-compose-template.txt > docker-compose/docker-compose.yaml
 
-          cat $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          cat $GITHUB_WORKSPACE/getapp-images-list.txt
-          chmod +x $GITHUB_WORKSPACE/test-existens-in-harbor.sh
-          cat $GITHUB_WORKSPACE/stuff/getapp-release-info.txt > $GITHUB_WORKSPACE/readme.md
-          $GITHUB_WORKSPACE/test-existens-in-harbor.sh
+          cat stuff/getapp-release-info.txt
+          cat getapp-images-list.txt
+          chmod +x test-existens-in-harbor.sh
+          cat stuff/getapp-release-info.txt > readme.md
+          ./test-existens-in-harbor.sh
 
       # - name: Upload release artifacts
       #   uses: actions/upload-artifact@v3
