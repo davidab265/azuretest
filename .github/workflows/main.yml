@@ -88,30 +88,35 @@ jobs:
     needs: get_all_microservices_tags
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Download .env file
         uses: actions/download-artifact@v3
         with:
           name: env-file
 
-      - name: Checkout code
-        uses: actions/checkout@v3
-
+      - name: Move .env file to source directory
+        run: |
+          mv env-file $GITHUB_WORKSPACE/.env
 
       - name: Create release files
         run: |
-          mv env-file .env
           source .env
           pwd
           ls -la
-          envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
-          envsubst < stuff/images-list-template.txt > getapp-images-list.txt
-          envsubst < stuff/docker-compose-template.txt > docker-compose/docker-compose.yaml
+          source $GITHUB_WORKSPACE/.env
+          pwd
+          ls -la $GITHUB_WORKSPACE
+          envsubst < $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
+          envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
+          envsubst < $GITHUB_WORKSPACE/stuff/docker-compose-template.txt > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
 
-          cat stuff/getapp-release-info.txt
-          cat getapp-images-list.txt
-          chmod +x test-existens-in-harbor.sh
-          cat stuff/getapp-release-info.txt > readme.md
-          ./test-existens-in-harbor.sh
+          cat $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
+          cat $GITHUB_WORKSPACE/getapp-images-list.txt
+          chmod +x $GITHUB_WORKSPACE/test-existens-in-harbor.sh
+          cat $GITHUB_WORKSPACE/stuff/getapp-release-info.txt > $GITHUB_WORKSPACE/readme.md
+          $GITHUB_WORKSPACE/test-existens-in-harbor.sh
 
       # - name: Upload release artifacts
       #   uses: actions/upload-artifact@v3
