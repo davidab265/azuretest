@@ -119,7 +119,6 @@ jobs:
 
       - name: Create release files
         run: |
-          type env-file
           mv env-file .env
           source .env
           envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
