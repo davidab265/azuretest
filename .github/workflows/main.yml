@@ -101,11 +101,10 @@ jobs:
           echo "Final .env contents:"
           cat .env
 
-      - name: Upload .env file
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: env-file
-          path: ${{ github.workspace }}/.env
+          path: .
 
 
   create_files_with_updated_env:
