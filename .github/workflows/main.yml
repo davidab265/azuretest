@@ -99,12 +99,13 @@ jobs:
       - name: Move .env file to source directory
         run: |
           mv env-file $GITHUB_WORKSPACE/.env
+          cp .env $GITHUB_WORKSPACE/.env-1
+
 
       - name: Create release files
         run: |
           source .env
           pwd
-          ls -la
           ls -la 
           envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
           envsubst < stuff/images-list-template.txt > getapp-images-list.txt
