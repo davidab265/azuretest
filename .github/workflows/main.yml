@@ -119,7 +119,7 @@ jobs:
 
       - name: Create release files
         run: |
-          source .env
+          source env
           envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
           envsubst < stuff/images-list-template.txt > getapp-images-list.txt
           envsubst < stuff/docker-compose-template.txt > docker-compose/docker-compose.yaml
@@ -148,17 +148,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Load environment variables
-        run: |
-          if [ -f ".env" ]; then
-            export $(grep -v '^#' .env | xargs)
-            echo "Loaded variables from .env"
-          else
-            echo ".env file does not exist."
-          fi
+      - name: Download .env file
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
 
       - name: Update Helm chart values
         run: |
+            source env
             sed -E -i "s,api1":" .*,api":" ${API_TAG},g" integration-chart/values.yml
             sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" integration-chart/values.yml
             sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" integration-chart/values.yml
