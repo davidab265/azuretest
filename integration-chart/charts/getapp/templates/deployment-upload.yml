@@ -27,6 +27,17 @@ spec:
         - name: upload
           image: "{{ .Values.repository }}upload:{{ .Values.tag.upload }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - '-f'
+                - 'api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/api/upload/checkHealth'
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 2
           securityContext:
             runAsUser: 0
           resources:

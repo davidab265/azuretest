@@ -27,6 +27,18 @@ spec:
         - name: deploy
           image: "{{ .Values.repository }}deploy:{{ .Values.tag.deploy }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - '-f'
+                - 'api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/api/deploy/checkHealth'
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 2
+
           securityContext:
             runAsUser: 0
           resources:

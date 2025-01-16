@@ -27,6 +27,17 @@ spec:
         - name: api
           image: "{{ .Values.repository }}api:{{ .Values.tag.api }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - '-f'
+                - 'api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/docs/'
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 2
           securityContext:
             runAsUser: 0
           resources:
