@@ -107,6 +107,7 @@ jobs:
           source .env
           pwd
           ls -la 
+          ls -la stuff/
           source $GITHUB_WORKSPACE/.env
           envsubst < $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
