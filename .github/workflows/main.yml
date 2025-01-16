@@ -101,11 +101,32 @@ jobs:
           echo "Final .env contents:"
           cat .env
 
-      - uses: actions/upload-artifact@v3
+      - name: Debug Directory
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Workspace directory:"
+          echo ${{ github.workspace }}
+          echo "Checking .env file:"
+          if [ -f ".env" ]; then
+            echo ".env file exists"
+            cat .env
+          else
+            echo ".env file not found"
+          fi
+      
+      - name: Create Debug Directory
+        run: |
+          mkdir -p debug-files
+          cp .env debug-files/ || echo "Failed to copy .env"
+          ls -la debug-files/
+      
+      - name: Upload Debug Directory
+        uses: actions/upload-artifact@v3
         with:
-          name: env-file
-          path: .
-
+          name: debug-files
+          path: debug-files
+          if-no-files-found: warn
 
   create_files_with_updated_env:
     needs: get_all_microservices_tags
