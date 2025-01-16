@@ -29,34 +29,10 @@ jobs:
           echo "new tag is: $NEW_TAG"
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
 
-      # - name: Save NEW_TAG to .env
-      #   run: echo "GETAPP_RELEASE_TAG=${{ steps.set_tag.outputs.NEW_TAG }}" > .env
-
-      # - name: Upload .env file
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: env-file
-      #     path: .env
-
   get_all_microservices_tags:
     needs: calculate_new_tag
     runs-on: ubuntu-latest
     steps:
-
-      # - name: Download .env file
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: env-file
-
-      # - name: Source .env file
-      #   run: |
-      #     if [ -f ".env" ]; then
-      #       export $(grep -v '^#' .env | xargs)
-      #       echo "Loaded variables from .env"
-      #     else
-      #       echo ".env file does not exist."
-      #     fi
-
       - name: Get all microservices tags
         env:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,18 +88,21 @@ jobs:
     needs: get_all_microservices_tags
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Download .env file
         uses: actions/download-artifact@v3
         with:
           name: env-file
 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+
       - name: Create release files
         run: |
           mv env-file .env
           source .env
+          pwd
+          ls -la
           envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
           envsubst < stuff/images-list-template.txt > getapp-images-list.txt
           envsubst < stuff/docker-compose-template.txt > docker-compose/docker-compose.yaml
