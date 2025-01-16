@@ -107,10 +107,10 @@ jobs:
           source .env
           pwd
           ls -la 
-          envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
-          envsubst < stuff/images-list-template.txt > getapp-images-list.txt
-          envsubst < stuff/docker-compose-template.txt > docker-compose/docker-compose.yaml
-
+          source $GITHUB_WORKSPACE/.env
+          envsubst < $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
+          envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
+          envsubst < $GITHUB_WORKSPACE/stuff/docker-compose-template.txt > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
           cat stuff/getapp-release-info.txt
           cat getapp-images-list.txt
           chmod +x test-existens-in-harbor.sh
