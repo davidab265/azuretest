@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: env-file
-          path: ${PWD}.env
+          path: ${{ github.workspace }}/.env
 
 
   create_files_with_updated_env:
