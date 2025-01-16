@@ -56,10 +56,10 @@ jobs:
           #!/bin/bash
           set -x
           pwd
-          cat .env
+          cat .env || true
 
           # Clear the file first
-          rm -f .env
+          rm -f .env || true
           
           # Start with the new release tag (only once)
           echo "GETAPP_RELEASE_TAG=${{ needs.calculate_new_tag.outputs.tag }}" > .env
