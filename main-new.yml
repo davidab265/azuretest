@@ -38,62 +38,62 @@ jobs:
       #     name: env-file
       #     path: .env
 
-get_all_microservices_tags:
-  needs: calculate_new_tag
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+  get_all_microservices_tags:
+    needs: calculate_new_tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # - name: Download .env file
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     name: env-file
+      # - name: Download .env file
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: env-file
 
-    # - name: Source .env file
-    #   run: |
-    #     if [ -f ".env" ]; then
-    #       export $(grep -v '^#' .env | xargs)
-    #       echo "Loaded variables from .env"
-    #     else
-    #       echo ".env file does not exist."
-    #     fi
+      # - name: Source .env file
+      #   run: |
+      #     if [ -f ".env" ]; then
+      #       export $(grep -v '^#' .env | xargs)
+      #       echo "Loaded variables from .env"
+      #     else
+      #       echo ".env file does not exist."
+      #     fi
 
-    - name: Get all microservices tags
-      env:
-        ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # start with the new release tag 
-        echo "GETAPP_RELEASE_TAG=${{ needs.calculate_new_tag.outputs.tag }}" >> .env
-        # Replace the repository names and owner as needed
-        declare -A REPOSITORIES=(
-          ["API"]="getappsh/api"
-          ["DELIVERY"]="getappsh/delivery"
-          ["DEPLOY"]="getappsh/deploy"
-          ["DISCOVERY"]="getappsh/discovery"
-          ["OFFERING"]="getappsh/offering"
-          ["PROJECT_MANAGEMENT"]="getappsh/project-management"
-          ["UPLOAD"]="getappsh/upload"
-          ["GETMAP"]="getappsh/getmap"
-          ["DASHBOARD"]="getappsh/dashboard"
-        )
+      - name: Get all microservices tags
+        env:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # start with the new release tag 
+          echo "GETAPP_RELEASE_TAG=${{ needs.calculate_new_tag.outputs.tag }}" >> .env
+          # Replace the repository names and owner as needed
+          declare -A REPOSITORIES=(
+            ["API"]="getappsh/api"
+            ["DELIVERY"]="getappsh/delivery"
+            ["DEPLOY"]="getappsh/deploy"
+            ["DISCOVERY"]="getappsh/discovery"
+            ["OFFERING"]="getappsh/offering"
+            ["PROJECT_MANAGEMENT"]="getappsh/project-management"
+            ["UPLOAD"]="getappsh/upload"
+            ["GETMAP"]="getappsh/getmap"
+            ["DASHBOARD"]="getappsh/dashboard"
+          )
 
-        for PROJECT in "${!REPOSITORIES[@]}"; do
-          REPO=${REPOSITORIES[$PROJECT]}
-          TAG=$(curl -s -H "Authorization: token $ACCESS_TOKEN" \
-            "https://api.github.com/repos/${REPO}/tags" | \
-            jq -r '[.[] | select(.name | contains("develop"))][0].name')
-          echo "${PROJECT}_TAG=${TAG}" >> .env
-        done
+          for PROJECT in "${!REPOSITORIES[@]}"; do
+            REPO=${REPOSITORIES[$PROJECT]}
+            TAG=$(curl -s -H "Authorization: token $ACCESS_TOKEN" \
+              "https://api.github.com/repos/${REPO}/tags" | \
+              jq -r '[.[] | select(.name | contains("develop"))][0].name')
+            echo "${PROJECT}_TAG=${TAG}" >> .env
+          done
 
 
-        cat .env
+          cat .env
 
-    - name: Upload .env file
-      uses: actions/upload-artifact@v3
-      with:
-        name: env-file
-        path: .env
+      - name: Upload .env file
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-file
+          path: .env
 
 
   create_files_with_updated_env:
