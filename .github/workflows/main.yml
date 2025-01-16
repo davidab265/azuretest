@@ -100,12 +100,12 @@ jobs:
           # Print the final contents without line numbers
           echo "Final .env contents:"
           cat .env
-          cp .env env
+          cp .env env-file
 
       - uses: actions/upload-artifact@v3
         with:
           name: env-file
-          path: env
+          path: env-file
 
 
   create_files_with_updated_env:
@@ -119,8 +119,8 @@ jobs:
 
       - name: Create release files
         run: |
-          type env
-          mv env .env
+          type env-file
+          mv env-file .env
           source .env
           envsubst < stuff/getapp-release-info-template.txt > stuff/getapp-release-info.txt
           envsubst < stuff/images-list-template.txt > getapp-images-list.txt
