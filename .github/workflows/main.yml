@@ -100,7 +100,6 @@ jobs:
           # Print the final contents without line numbers
           echo "Final .env contents:"
           cat .env
-          echo "$PWD"
 
       - name: Upload .env file
         uses: actions/upload-artifact@v3
