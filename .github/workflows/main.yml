@@ -5,7 +5,226 @@ on:
     branches:
       - main
 
+
 jobs:
+
+  calculate_new_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set_tag.outputs.NEW_TAG }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Ensure all tags are fetched
+
+      - name: Calculate new tag
+        id: set_tag
+        run: |
+          LAST_TAG=$(git describe --abbrev=0 --tags)
+          export MAJOR=$(echo $LAST_TAG | awk -F'.' '{print $1}')
+          export MINOR=$(echo $LAST_TAG | awk -F'.' '{print $2}')
+          export PATCH=$(echo $LAST_TAG | awk -F'.' '{print $3}' | awk -F'-' '{print $1}')
+          export SUFFIX=$(echo $LAST_TAG | awk -F'-' '{print $2}')
+          export NEXT_PATCH=$((PATCH + 1))
+          export NEW_TAG="$MAJOR.$MINOR.$NEXT_PATCH-$SUFFIX"
+          echo "new tag is: $NEW_TAG"
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
+name: Get Release Tags and Create Files
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  API_ID: "20"
+  DELIVERY_ID: "39"
+  DEPLOY_ID: "38"
+  DISCOVERY_ID: "42"
+  OFFERING_ID: "41"
+  PROJECT_MANAGMENT_ID: "43"
+  UPLOAD_ID: "40"
+  DASHBOARD_ID: "19"
+  GITLAB_DOMAIN: "gitlab.getapp.sh"
+  BRANCH: "develop"
+
+jobs:
+  get_all_microservices_tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get all microservices tags
+        env:
+          ACCESS_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }}
+        run: |
+          # # API
+          API_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${API_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "API_TAG=${API_TAG}" >> .env
+
+          # Delivery
+          DELIVERY_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${DELIVERY_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "DELIVERY_TAG=${DELIVERY_TAG}" >> .env
+
+          # Deploy
+          DEPLOY_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${DEPLOY_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "DEPLOY_TAG=${DEPLOY_TAG}" >> .env
+
+          # Discovery
+          DISCOVERY_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${DISCOVERY_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "DISCOVERY_TAG=${DISCOVERY_TAG}" >> .env
+
+          # Offering
+          OFFERING_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${OFFERING_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "OFFERING_TAG=${OFFERING_TAG}" >> .env
+
+          # Project Management
+          PROJECT_MANAGMENT_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${PROJECT_MANAGMENT_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "PROJECT_MANAGMENT_TAG=${PROJECT_MANAGMENT_TAG}" >> .env
+
+          # Upload
+          UPLOAD_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${UPLOAD_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "UPLOAD_TAG=${UPLOAD_TAG}" >> .env
+
+          # Getmap Node
+          GETMAP_TAG=$(curl -sSL "https://api.github.com/repos/getappsh/getmap/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "GETMAP_TAG=${GETMAP_TAG}" >> .env
+
+          # Dashboard
+          DASHBOARD_TAG=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "https://${GITLAB_DOMAIN}/api/v4/projects/${DASHBOARD_ID}/repository/tags" | jq -r '[.[] | select(.name | contains("develop"))][0].name')
+          echo "DASHBOARD_TAG=${DASHBOARD_TAG}" >> .env
+
+          # Docs
+          DOCS_TAG=$(curl -s https://api.github.com/repos/getappsh/docs/releases/latest | jq -r '.tag_name')
+          echo "DOCS_TAG=${DOCS_TAG}" >> .env
+
+          cat .env
+
+      - name: Upload .env file
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-file
+          path: .env
+
+  create_full_tag_file:
+    needs: get_all_microservices_tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download .env file
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+
+      - name: Create release files
+        run: |
+          source .env
+          envsubst < stuff/getapp-release-info-tamplate.txt > stuff/getapp-release-info.txt
+          envsubst < stuff/images-list-template.txt > getapp-images-list.txt
+          envsubst < stuff/docker-compose-template.txt > docker-compose/docker-compose.yaml
+
+          cat stuff/getapp-release-info.txt
+          cat getapp-images-list.txt
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-files
+          path: |
+            stuff/getapp-release-info.txt
+            getapp-images-list.txt
+            docker-compose/docker-compose.yaml
+
+
+  update_helm_chart:
+    runs-on: ubuntu-latest
+    env:
+      NAMESPACE: getapp-dev
+      replicaCount: 1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Load environment variables
+        run: |
+          if [ -f ".env" ]; then
+            export $(grep -v '^#' .env | xargs)
+            echo "Loaded variables from .env"
+          else
+            echo ".env file does not exist."
+          fi
+
+      - name: Update Helm chart values
+        run: |
+          sed -E -i "s,api1\":\".*,api\":\"${API_TAG},g" integration-chart/values.yml
+          sed -E -i "s,delivery\":\".*,delivery\":\"${DELIVERY_TAG},g" integration-chart/values.yml
+          sed -E -i "s,deploy\":\".*,deploy\":\"${DEPLOY_TAG},g" integration-chart/values.yml
+          sed -E -i "s,discovery\":\".*,discovery\":\"${DISCOVERY_TAG},g" integration-chart/values.yml
+          sed -E -i "s,offering\":\".*,offering\":\"${OFFERING_TAG},g" integration-chart/values.yml
+          sed -E -i "s,projectmanagment\":\".*,projectmanagment\":\"${PROJECT_MANAGMENT_TAG},g" integration-chart/values.yml
+          sed -E -i "s,upload\":\".*,upload\":\"${UPLOAD_TAG},g" integration-chart/values.yml
+          sed -E -i "s,dashboard\":\".*,dashboard\":\"${DASHBOARD_TAG},g" integration-chart/values.yml
+          sed -E -i "s,getmap\":\".*,getmap\":\"${GETMAP_TAG},g" integration-chart/values.yml
+          sed -E -i "s,docs\":\".*,docs\":\"${DOCS_TAG},g" integration-chart/values.yml
+          sed -E -i "s,gitlabrelease\":\".*,gitlabrelease\":\"${GETAPP_RELEASE_TAG},g" integration-chart/values.yml
+          sed -E -i "s,configmap\":\".*,configmap\":\"${NAMESPACE},g" integration-chart/values.yml
+          sed -E -i "s,routePrefix\":\".*,routePrefix\":\"${NAMESPACE},g" integration-chart/values.yml
+          sed -E -i "s,dbName\":\".*,dbName\":\"${NAMESPACE},g" integration-chart/values.yml
+          sed -E -i "s,openshiftProjectName\":\".*,openshiftProjectName\":\"${NAMESPACE},g" integration-chart/values.yml
+          sed -E -i "s,replicaCount\":\".*,replicaCount\":\"${replicaCount},g" integration-chart/values.yml
+
+      - name: Save artifacts
+        run: |
+          mkdir -p artifacts
+          cp integration-chart/values.yml artifacts/values.yml
+
+  commit_files:
+    runs-on: ubuntu-latest
+    needs: update_helm_chart
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config user.email "david@linnovate.net"
+          git config user.name "ci-bot"
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Update Helm chart with new values" || echo "No changes to commit."
+          git tag $GETAPP_RELEASE_TAG || true
+          git push origin HEAD:develop --follow-tags
+
+      - name: Save commit SHA
+        run: |
+          NEW_COMMIT_SHA=$(git rev-parse HEAD)
+          echo $NEW_COMMIT_SHA > commit_sha.txt
+          
+          
+  tag_the_commit:
+    needs: calculate_new_tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.SECRET_GITHUB_TOKEN }}
+          custom_tag: ${{ needs.calculate_new_tag.outputs.tag }}
+          #custom_tag: 1.0.46.1-even-v2
+          tag_prefix: ""
+
+      # - name: Create a GitHub release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     tag: ${{ needs.calculate_new_tag.outputs.tag }}
+      #     name: Release ${{ needs.calculate_new_tag.outputs.tag }}
+      #     body: ${{ needs.calculate_new_tag.outputs.tag }}
+
   upload-to-azure:
     runs-on: ubuntu-latest
 
