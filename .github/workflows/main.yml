@@ -29,21 +29,11 @@ jobs:
           echo "new tag is: $NEW_TAG"
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
 
-      # - name: Save NEW_TAG to .env
-      #   run: echo "GETAPP_RELEASE_TAG=${{ steps.set_tag.outputs.NEW_TAG }}" > .env
-
-      # - name: Upload .env file
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: env-file
-      #     path: .env
 
   get_all_microservices_tags:
     needs: calculate_new_tag
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
       # - name: Download .env file
       #   uses: actions/download-artifact@v3
@@ -63,9 +53,18 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # start with the new release tag 
-          echo "GETAPP_RELEASE_TAG=${{ needs.calculate_new_tag.outputs.tag }}" >> .env
-          # Replace the repository names and owner as needed
+          #!/bin/bash
+          set -x
+          pwd
+          cat .env
+
+          # Clear the file first
+          rm -f .env
+          
+          # Start with the new release tag (only once)
+          echo "GETAPP_RELEASE_TAG=${{ needs.calculate_new_tag.outputs.tag }}" > .env
+          
+          # Define repositories in the order you want them to appear
           declare -A REPOSITORIES=(
             ["API"]="getappsh/api"
             ["DELIVERY"]="getappsh/delivery"
@@ -77,20 +76,30 @@ jobs:
             ["GETMAP"]="getappsh/getmap"
             ["DASHBOARD"]="getappsh/dashboard"
           )
-
+          
+          # Process each repository and append to .env
           for PROJECT in "${!REPOSITORIES[@]}"; do
             REPO=${REPOSITORIES[$PROJECT]}
             TAG=$(curl -s -H "Authorization: token $ACCESS_TOKEN" \
               "https://api.github.com/repos/${REPO}/tags" | \
-              jq -r '[.[] | select(.name | contains("develop"))][0].name')
-            echo "${PROJECT}_TAG=${TAG}" >> .env
+              jq -r '[.[] | select(.name | contains("develop"))][0].name // "null"')
+            
+            # Only append if we got a tag
+            if [ ! -z "$TAG" ]; then
+              echo "${PROJECT}_TAG=${TAG}" >> .env
+            else
+              echo "Warning: No tag found for ${REPO}"
+            fi
           done
-
-
+          
+          # Print the final contents without line numbers
+          echo "Final .env contents:"
           cat .env
+          echo "$PWD"
 
       - name: Upload .env file
         uses: actions/upload-artifact@v3
+        working-directory: ${{ github.workspace }}
         with:
           name: env-file
           path: .env

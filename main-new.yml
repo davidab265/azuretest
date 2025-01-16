@@ -29,21 +29,11 @@ jobs:
           echo "new tag is: $NEW_TAG"
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
 
-      # - name: Save NEW_TAG to .env
-      #   run: echo "GETAPP_RELEASE_TAG=${{ steps.set_tag.outputs.NEW_TAG }}" > .env
-
-      # - name: Upload .env file
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: env-file
-      #     path: .env
 
   get_all_microservices_tags:
     needs: calculate_new_tag
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
       # - name: Download .env file
       #   uses: actions/download-artifact@v3
@@ -63,8 +53,13 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          #!/bin/bash
+          set -x
+          pwd
+          cat .env
+
           # Clear the file first
-          > .env
+          rm -f .env
           
           # Start with the new release tag (only once)
           echo "GETAPP_RELEASE_TAG=${{ needs.calculate_new_tag.outputs.tag }}" > .env
