@@ -93,17 +93,17 @@ jobs:
     
     steps:
       - name: Checkout code
-      uses: actions/checkout@v3
+        uses: actions/checkout@v3
       
       - name: Download .env file
-      uses: actions/download-artifact@v3
-      with:
-        name: env-file
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
         
-        - name: Move .env file to source directory
+      - name: Move .env file to source directory
         run: |
-        mv env-file $GITHUB_WORKSPACE/.env
-        cp .env $GITHUB_WORKSPACE/.env-1
+          mv env-file $GITHUB_WORKSPACE/.env
+          cp .env $GITHUB_WORKSPACE/.env-1
         
         
       - name: Create release files
