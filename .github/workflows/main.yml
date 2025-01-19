@@ -83,7 +83,22 @@ jobs:
           name: env-file
           path: env-file
 
+  zip_images:
+    needs:
+      - get_all_microservices_tags
+      - calculate_new_tag
+      # - create_files_with_updated_env
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: zip images
+        run: |
+          chmod +x getapp-images-to-tar.sh
+          ./getapp-images-to-tar.sh
+        
   create_files_with_updated_env:
     needs:
       - get_all_microservices_tags
@@ -166,21 +181,6 @@ jobs:
           name: repo-zip
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
   
-  zip_images:
-    needs:
-      - get_all_microservices_tags
-      - calculate_new_tag
-      - create_files_with_updated_env
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: zip images
-        run: |
-          chmod +x getapp-images-to-tar.sh
-          ./getapp-images-to-tar.sh
 
       - name: Upload zipped files
         uses: actions/upload-artifact@v3
