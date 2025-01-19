@@ -164,9 +164,31 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: repo-zip
-          path: getapp-${{ needs.calculate_new_tag.outputs.tag }}.zip
+          path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
   
+  zip_images:
+    needs:
+      - get_all_microservices_tags
+      - calculate_new_tag
+      - create_files_with_updated_env
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: zip images
+        run: |
+          chmod +x getapp-images-to-tar.sh
+          ./getapp-images-to-tar.sh
+
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: getapp-images
+          path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+
+        
   # commit:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -176,9 +198,9 @@ jobs:
   #     - name: Set up Git configuration
   #       run: |
         
-  #       - name: Modify files and commit
+  #     - name: Modify files and commit
   #       run: |
-  #       cat .env
+  #         cat .env
   #         git config user.email "david@linnovate.net"
   #         git config user.name "ci-bot"
   #         echo test >> stuff/nothing
@@ -215,6 +237,11 @@ jobs:
         with:
           name: repo-zip
 
+      - name: Download zipped files
+        uses: actions/download-artifact@v3
+        with:
+          name: getapp-images
+  
       - name: Upload file to Azure Storage
         uses: azure/CLI@v1
         with:
@@ -223,8 +250,16 @@ jobs:
               --account-name $AZURE_STORAGE_ACCOUNT \
               --account-key $AZURE_STORAGE_KEY \
               --container-name $AZURE_CONTAINER \
-              --file getapp-${{ needs.calculate_new_tag.outputs.tag }}.zip \
-              --name getapp-${{ needs.calculate_new_tag.outputs.tag }}.zip
+              --file getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip \
+              --name getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
+
+            az storage blob upload \
+              --account-name $AZURE_STORAGE_ACCOUNT \
+              --account-key $AZURE_STORAGE_KEY \
+              --container-name $AZURE_CONTAINER \
+              --file getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip \
+              --name getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
