@@ -108,6 +108,8 @@ jobs:
 
       - name: Create release files
         run: |
+          #!/bin/bash
+          set -x
           source .env
           pwd
           ls -la 
@@ -145,6 +147,7 @@ jobs:
 
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
+          echo "================================================================"
           echo "this repo is: ${{ github.repository }}""
           git remote add github https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
           echo test >> stuff/nothing
