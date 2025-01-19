@@ -94,6 +94,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        env:
+          THIS_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Download .env file
         uses: actions/download-artifact@v3
@@ -148,15 +152,15 @@ jobs:
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
           echo "================================================================"
-          echo "this repo is: ${{ github.repository }}""
-          git remote add github https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
+          echo "this repo is: $THIS_REPO
+          git remote add github https://x-access-token:${TOKEN}@github.com/${THIS_REPO}
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
           rm agent.exe || true
           # chmod +x ./stuff/pull-github-artifacts.sh
           # ./stuff/pull-github-artifacts.sh
           git add .
-          git tag ${{ needs.calculate_new_tag.outputs.tag }} || true
+          git tag $RELEASE_TAG || true
           git commit -am "push back from pipeline"
           git push github HEAD:main --no-verify
 
@@ -192,7 +196,9 @@ jobs:
             
   upload_to_azure:
     runs-on: ubuntu-latest
-    needs: create_files_with_updated_env
+    needs: 
+      - create_files_with_updated_env
+      - zip_images
     steps:
       - name: Download zipped files
         uses: actions/download-artifact@v3
