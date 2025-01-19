@@ -172,6 +172,12 @@ jobs:
           zip -r repo-files.zip .
         shell: bash
 
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: getapp-chart
+          path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
+
   
   zip_images:
     needs:
@@ -206,7 +212,7 @@ jobs:
       - name: Download zipped files
         uses: actions/download-artifact@v3
         with:
-          name: repo-zip
+          name: getapp-chart
 
       - name: Download zipped files
         uses: actions/download-artifact@v3
