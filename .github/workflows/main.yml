@@ -83,21 +83,7 @@ jobs:
           name: env-file
           path: env-file
 
-  zip_images:
-    needs:
-      - get_all_microservices_tags
-      - calculate_new_tag
-      # - create_files_with_updated_env
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: zip images
-        run: |
-          chmod +x getapp-images-to-tar.sh
-          ./getapp-images-to-tar.sh
+    
         
   create_files_with_updated_env:
     needs:
@@ -159,6 +145,7 @@ jobs:
 
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
+          echo "this repo is: ${{ github.repository }}""
           git remote add github https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
@@ -175,12 +162,23 @@ jobs:
           zip -r repo-files.zip .
         shell: bash
 
-      - name: Upload zipped files
-        uses: actions/upload-artifact@v3
-        with:
-          name: repo-zip
-          path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
   
+  zip_images:
+    needs:
+      - get_all_microservices_tags
+      - calculate_new_tag
+      - create_files_with_updated_env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: zip images
+        run: |
+          chmod +x getapp-images-to-tar.sh
+          ./getapp-images-to-tar.sh
+          mv getapp*.zip getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
       - name: Upload zipped files
         uses: actions/upload-artifact@v3
@@ -188,45 +186,6 @@ jobs:
           name: getapp-images
           path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
-        
-  # commit:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Set up Git configuration
-  #       run: |
-        
-  #     - name: Modify files and commit
-  #       run: |
-  #         cat .env
-  #         git config user.email "david@linnovate.net"
-  #         git config user.name "ci-bot"
-  #         echo test >> stuff/nothing
-  #         rm -f GetAppAgent* || true
-  #         rm agent.exe || true
-  #         chmod +x ./stuff/pull-github-artifacts.sh
-  #         # ./stuff/pull-github-artifacts.sh
-  #         git remote add github https://github.com/${{ github.repository }} || true
-  #         git add .
-  #         git tag ${{ secrets.GETAPP_RELEASE_TAG }} || true
-  #         git commit -am "push back from pipeline"
-  #         git push github HEAD:develop --no-verify
-
-  #     - name: Save commit SHA
-  #       run: echo "${GITHUB_SHA}" > commit_sha.txt
-
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: commit-artifacts
-  #         path: |
-  #           .env
-  #           stuff/getapp-release-info.txt
-  #           stuff/url_job_link.txt
-  #           readme.md
-  #           commit_sha.txt
             
   upload_to_azure:
     runs-on: ubuntu-latest
