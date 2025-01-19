@@ -151,7 +151,7 @@ jobs:
           sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" integration-chart/values.yml
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" integration-chart/values.yml
           cat integration-chart/values.yml
-
+          # git push
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
           echo "================================================================"
