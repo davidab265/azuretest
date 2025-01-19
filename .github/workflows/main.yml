@@ -152,7 +152,7 @@ jobs:
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
           echo "================================================================"
-          echo "this repo is: $THIS_REPO
+          echo "this repo is: $THIS_REPO"
           git remote add github https://x-access-token:${TOKEN}@github.com/${THIS_REPO}
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
