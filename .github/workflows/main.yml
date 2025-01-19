@@ -144,12 +144,12 @@ jobs:
 
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
+          git remote add github https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
           rm agent.exe || true
           # chmod +x ./stuff/pull-github-artifacts.sh
           # ./stuff/pull-github-artifacts.sh
-          git remote add github https://github.com/${{ github.repository }} || true
           git add .
           git tag ${{ needs.calculate_new_tag.outputs.tag }} || true
           git commit -am "push back from pipeline"

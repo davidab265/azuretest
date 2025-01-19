@@ -6,11 +6,11 @@ getapp-api:
 #--------------------------------------------------------------------------------
 
   replicaCount: $replicaCount
-  configmap: $CONFIGMAP
-  routePrefix: $CONFIGMAP
+  configmap: $NAMESPACE
+  routePrefix: $NAMESPACE
   routeMainlUrl: apps.sr.eastus.aroapp.io
-  dbName: $CONFIGMAP
-
+  dbName: $NAMESPACE
+  webProtocol: https://
 #--------------------------------------------------------------------------------
 #
 # the values of the variables in this section are generaited from the .env file, 

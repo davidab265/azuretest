@@ -10,7 +10,7 @@ getapp-api:
   routePrefix: getapp-dev
   routeMainlUrl: apps.sr.eastus.aroapp.io
   dbName: getapp-dev
-
+  webProtocol: https://
 #--------------------------------------------------------------------------------
 #
 # the values of the variables in this section are generaited from the .env file, 
