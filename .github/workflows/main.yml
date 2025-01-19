@@ -92,8 +92,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main        
       
       - name: Download .env file
         uses: actions/download-artifact@v3
@@ -163,7 +166,7 @@ jobs:
           git tag $RELEASE_TAG || true
           git commit -m "Automated commit from GitHub Actions"
           git push origin main
-          
+
       - name: Zip all repository files
         run: |
           zip -r repo-files.zip .
