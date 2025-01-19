@@ -110,7 +110,7 @@ jobs:
         env:
           THIS_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           #!/bin/bash
           set -x
@@ -152,9 +152,8 @@ jobs:
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
           echo "================================================================"
-          echo "this repo is: ${THIS_REPO}"
-          echo " the token is ${TOKEN}"
-          git remote add github https://x-access-token:${TOKEN}@github.com/${THIS_REPO}
+          #echo "this repo is: ${THIS_REPO}"
+          # git remote add github https://x-access-token:${TOKEN}@github.com/${THIS_REPO}
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
           rm agent.exe || true
@@ -162,9 +161,9 @@ jobs:
           # ./stuff/pull-github-artifacts.sh
           git add .
           git tag $RELEASE_TAG || true
-          git commit -am "push back from pipeline"
-          git push github HEAD:main --no-verify
-
+          git commit -m "Automated commit from GitHub Actions"
+          git push origin main
+          
       - name: Zip all repository files
         run: |
           zip -r repo-files.zip .
