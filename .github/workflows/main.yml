@@ -90,27 +90,27 @@ jobs:
       - get_all_microservices_tags
       - calculate_new_tag
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+      uses: actions/checkout@v3
+      
+      - name: Download .env file
+      uses: actions/download-artifact@v3
+      with:
+        name: env-file
+        
+        - name: Move .env file to source directory
+        run: |
+        mv env-file $GITHUB_WORKSPACE/.env
+        cp .env $GITHUB_WORKSPACE/.env-1
+        
+        
+      - name: Create release files
         env:
-          THIS_REPO: davidab265/azuretest
+          THIS_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           TOKEN: ${{ secrets.PAT_TOKEN }}
-
-      - name: Download .env file
-        uses: actions/download-artifact@v3
-        with:
-          name: env-file
-
-      - name: Move .env file to source directory
-        run: |
-          mv env-file $GITHUB_WORKSPACE/.env
-          cp .env $GITHUB_WORKSPACE/.env-1
-
-
-      - name: Create release files
         run: |
           #!/bin/bash
           set -x
