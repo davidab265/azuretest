@@ -26,7 +26,7 @@ getapp-api:
     deploy: 1.3.41-develop
     discovery: 1.3.90-develop
     offering: 1.3.68-develop
-    projectmanagment: 
+    projectmanagment: 1.3.35-develop
     upload: 1.3.40-develop
     dashboard: null
     getmap: 1.3.59-develop
