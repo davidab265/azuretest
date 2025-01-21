@@ -80,6 +80,7 @@ jobs:
             ["UPLOAD"]="getappsh/upload"
             ["GETMAP"]="getappsh/getmap"
             ["DASHBOARD"]="getappsh/dashboard"
+            ["DOCS"]="getappsh/docs"
           )
           
           # Process each repository and append to .env
