@@ -1,4 +1,4 @@
-name: Upload to Azure and Get Download Link
+name: Create full Release
 
 on:
   push:
@@ -106,7 +106,7 @@ jobs:
       - name: Move .env file to source directory
         run: |
           mv env-file $GITHUB_WORKSPACE/.env
-          cp .env $GITHUB_WORKSPACE/.env-1
+          #cp .env $GITHUB_WORKSPACE/.env-1
         
         
       - name: Create release files
@@ -117,11 +117,34 @@ jobs:
         run: |
           #!/bin/bash
           set -x
-          source .env
+          #source .env
           pwd
           ls -la 
           ls -la stuff/
           source $GITHUB_WORKSPACE/.env
+          #-------------------------------------------------#
+          # echo test
+          #-------------------------------------------------#
+          echo   #-------------------------------------------------#
+
+          echo "harbor.getapp.sh/getapp-dev/api:${API_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/delivery:${DELIVERY_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/deploy:${DEPLOY_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/discovery:${DISCOVERY_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/offering:${OFFERING_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/project-managment:${PROJECT_MANAGMENT_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/upload:${UPLOAD_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/getmap-node:${GETMAP_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/dashboard:${DASHBOARD_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/docs:${DOCS_TAG}         
+          
+          echo   #-------------------------------------------------#
+
+
+          #-------------------------------------------------#
+          # END
+          #-------------------------------------------------#
+
           envsubst < $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
           envsubst < $GITHUB_WORKSPACE/stuff/docker-compose-template.txt > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
@@ -137,7 +160,7 @@ jobs:
           sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" integration-chart/values.yml
           sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" integration-chart/values.yml
           sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" integration-chart/values.yml
-          sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGMENT_TAG},g" integration-chart/values.yml
+          sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGEMENT_TAG},g" integration-chart/values.yml
           sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" integration-chart/values.yml
           sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" integration-chart/values.yml
           sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" integration-chart/values.yml
@@ -151,12 +174,11 @@ jobs:
           sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" integration-chart/values.yml
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" integration-chart/values.yml
           cat integration-chart/values.yml
+
           # git push
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
           echo "================================================================"
-          #echo "this repo is: ${THIS_REPO}"
-          # git remote add github https://x-access-token:${TOKEN}@github.com/${THIS_REPO}
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
           rm agent.exe || true
@@ -166,6 +188,8 @@ jobs:
           git tag $RELEASE_TAG || true
           git commit -m "Automated commit from GitHub Actions"
           git push origin main
+
+        shell: bash
 
       - name: Zip all repository files
         env:
