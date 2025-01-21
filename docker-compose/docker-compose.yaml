@@ -1,5 +1,5 @@
 #--------------------------------------------------
-# GETAPP_RELEASE_TAG: 
+# GETAPP_RELEASE_TAG}: ${{GETAPP_RELEASE_TAG}}
 # docker compose file for deploying getapp on elbit VM
 #--------------------------------------------------
 
