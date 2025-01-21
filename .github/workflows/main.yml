@@ -144,10 +144,8 @@ jobs:
           #-------------------------------------------------#
           # END
           #-------------------------------------------------#
-          cat $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt | echo > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          cat $GITHUB_WORKSPACE/stuff/images-list-template.txt | echo  > $GITHUB_WORKSPACE/getapp-images-list.txt
-          cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt | echo  > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
-
+          chmod +x env-change.py
+          python env-change.py
           # envsubst < $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           # envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
           # envsubst < $GITHUB_WORKSPACE/stuff/docker-compose-template.txt > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
