@@ -136,7 +136,7 @@ jobs:
           echo "harbor.getapp.sh/getapp-dev/upload:${UPLOAD_TAG}"
           echo "harbor.getapp.sh/getapp-dev/getmap-node:${GETMAP_TAG}"
           echo "harbor.getapp.sh/getapp-dev/dashboard:${DASHBOARD_TAG}"
-          echo "harbor.getapp.sh/getapp-dev/docs:${DOCS_TAG}         
+          echo "harbor.getapp.sh/getapp-dev/docs:${DOCS_TAG}"      
           
           echo   #-------------------------------------------------#
 

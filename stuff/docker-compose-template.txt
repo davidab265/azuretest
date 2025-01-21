@@ -68,7 +68,7 @@ services:
 
   project-management:
     container_name: project-management
-    image: harbor.getapp.sh/getapp-dev/project-managment:${PROJECT_MANAGMENT_TAG}
+    image: harbor.getapp.sh/getapp-dev/project-managment:${PROJECT_MANAGEMENT_TAG}
     restart: always
     env_file:
       - .env.dev
