@@ -106,39 +106,9 @@ jobs:
       - name: Move .env file to source directory
         run: |
           mv env-file $GITHUB_WORKSPACE/.env
-          source $GITHUB_WORKSPACE/.env
-          rm $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          rm $GITHUB_WORKSPACE/getapp-images-list.txt
-          rm $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
-
-      - name: create files - 1 
-        uses: danielr1996/envsubst-action@1.0.0
-        env:
-            VERSION: 1.2.3
-            INSTANCE: staging
-        with:
-          input: getapp-release-info-template.txt
-          output: getapp-release-info.txt
-
-      - name: create files - 2
-        uses: danielr1996/envsubst-action@1.0.0
-        env:
-            VERSION: 1.2.3
-            INSTANCE: staging
-        with:
-          input: ./stuff/images-list-template.txt
-          output: getapp-images-list.txt
-
-      - name: create files - 3 
-        uses: danielr1996/envsubst-action@1.0.0
-        env:
-            VERSION: 1.2.3
-            INSTANCE: staging
-        with:
-          input: ./stuff/docker-compose-template-1.txt
-          output: ./docker-compose/docker-compose.yaml
-
-
+          #cp .env $GITHUB_WORKSPACE/.env-1
+        
+        
       - name: Create release files
         env:
           THIS_REPO: ${{ github.repository }}
@@ -147,16 +117,57 @@ jobs:
         run: |
           #!/bin/bash
           set -x
+          #source .env
           pwd
+          ls -la 
+          ls -la stuff/
           source $GITHUB_WORKSPACE/.env
+          #-------------------------------------------------#
+          # echo test
+          #-------------------------------------------------#
+          echo   #-------------------------------------------------#
+
+          echo "harbor.getapp.sh/getapp-dev/api:${API_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/delivery:${DELIVERY_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/deploy:${DEPLOY_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/discovery:${DISCOVERY_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/offering:${OFFERING_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/project-managment:${PROJECT_MANAGMENT_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/upload:${UPLOAD_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/getmap-node:${GETMAP_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/dashboard:${DASHBOARD_TAG}"
+          echo "harbor.getapp.sh/getapp-dev/docs:${DOCS_TAG}"      
+          
+          echo   #-------------------------------------------------#
+
+
+          #-------------------------------------------------#
+          # END
+          #-------------------------------------------------#
+          chmod +x $GITHUB_WORKSPACE/templater
+          # create getapp-release-info.txt
+          rm $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
+          cp ./stuff/getapp-release-info-template.txt ./stuff/getapp-release-info-template-1.txt
+          $GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/getapp-release-info-template-1.txt >> $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
+          rm ./stuff/getapp-release-info-template-1.txt
+          
+          # create getapp-images-list.txt
+          rm $GITHUB_WORKSPACE/getapp-images-list.txt
+          cp ./stuff/images-list-template.txt ./stuff/images-list-template-1.txt
+          /bin/bash $GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/images-list-template-1.txt >> $GITHUB_WORKSPACE/getapp-images-list.txt
+          rm ./stuff/images-list-template-1.txt
+
+          # create getapp-images-list.txt
+          rm $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
+          cp ./stuff/docker-compose-template.txt ./stuff/docker-compose-template-1.txt
+          /bin/bash $GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/docker-compose-template-1.txt >> $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
+          rm ./stuff/docker-compose-template-1.txt
 
           # test the results
-          cat getapp-images-list.txt
           cat stuff/getapp-release-info.txt
-
-          cat stuff/getapp-release-info.txt > readme.md
-
+          cat getapp-images-list.txt
           chmod +x test-existens-in-harbor.sh
+          cat stuff/getapp-release-info.txt > readme.md
           ./test-existens-in-harbor.sh
 
           # chart change
