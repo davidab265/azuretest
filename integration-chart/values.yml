@@ -28,9 +28,9 @@ getapp-api:
     offering: 1.3.68-develop
     projectmanagment: 1.3.35-develop
     upload: 1.3.40-develop
-    dashboard: null
+    dashboard: 1.3.8-develop
     getmap: 1.3.59-develop
-    docs: 
+    docs: v1-16-01-2025
   namespace:
       openshiftProjectName: 
 

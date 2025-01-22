@@ -16,5 +16,5 @@ This is the list of docker images that or included in this release.
 | 6 | project management | 1.3.35-develop | harbor.getapp.sh/getapp-dev/project-management:1.3.35-develop |
 | 7 | upload             | 1.3.40-develop            | harbor.getapp.sh/getapp-dev/upload:1.3.40-develop                        |
 | 8 | getmap        | 1.3.59-develop            | harbor.getapp.sh/getapp-dev/getmap-node:1.3.59-develop                        |
-| 9 | dashboard          | null        | harbor.getapp.sh/getapp-dev/dashboard:null                  |
-| 10 | docs         |         | harbor.getapp.sh/getapp-dev/docs:                  |
+| 9 | dashboard          | 1.3.8-develop        | harbor.getapp.sh/getapp-dev/dashboard:1.3.8-develop                  |
+| 10 | docs         | v1-16-01-2025        | harbor.getapp.sh/getapp-dev/docs:v1-16-01-2025                  |
