@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       #tag: ${{ steps.set_tag.outputs.NEW_TAG }}
-      tag: 1.3.2
+      tag: 1.3.1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -102,7 +102,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: main        
-      
+          fetch-depth: 0 # Important for getting all tags and history
+  
       - name: Download .env file
         uses: actions/download-artifact@v3
         with:
@@ -298,35 +299,49 @@ jobs:
     env:
       RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for getting all tags and history
 
-    - name: Download README.md
-      uses: actions/download-artifact@v3
-      with:
-        name: release-note
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits since last tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.get_version.outputs.VERSION }}^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # If no previous tag exists, get all commits
+            CHANGELOG=$(git log --pretty=format:"* %s" ${{ steps.get_version.outputs.VERSION }})
+          else
+            # Get commits between tags
+            CHANGELOG=$(git log --pretty=format:"* %s" $PREVIOUS_TAG..${{ steps.get_version.outputs.VERSION }})
+          fi
+          # Escape newlines for GitHub Actions
+          CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+          echo "CHANGELOG=$CHANGELOG" >> $GITHUB_OUTPUT
 
-    - name: Set up GitHub CLI
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
-
-    - name: GitHub CLI Authentication
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh api user
-
-    - name: Create GitHub Release
-      id: create_release
-
-      run: |
-        gh release create "$RELEASE_TAG" \
-          --title "GetApp Release" \
-          --notes-file README.md
-
-    - name: Upload README.md as a release asset
-      run: |
-        gh release upload $RELEASE_TAG README.md
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## What's Changed
+            ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: false
