@@ -122,7 +122,7 @@ jobs:
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/images-list-template.txt)\"" > $GITHUB_WORKSPACE/getapp-images-list.txt
           echo "$(cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt)" > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
 
-          cp $GITHUB_WORKSPACE/.env $GITHUB_WORKSPACE/$GITHUB_WORKSPACE/docker-compose/.env
+          cp $GITHUB_WORKSPACE/.env $GITHUB_WORKSPACE/docker-compose/.env
           # test the results
           echo "getapp-images-list NEW file:"
           cat getapp-images-list.txt
