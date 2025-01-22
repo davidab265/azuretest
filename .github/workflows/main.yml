@@ -224,6 +224,7 @@ jobs:
     needs: 
       - create_files_with_updated_env
       - zip_images
+      - calculate_new_tag
     steps:
       - name: Download zipped files
         uses: actions/download-artifact@v3
@@ -249,15 +250,15 @@ jobs:
               --account-name $AZURE_STORAGE_ACCOUNT \
               --account-key $AZURE_STORAGE_KEY \
               --container-name $AZURE_CONTAINER \
-              --file getapp-chart-${RELEASE_TAG}.zip \
-              --name getapp-chart-${RELEASE_TAG}.zip
+              --file getapp-chart-$RELEASE_TAG.zip \
+              --name getapp-chart-$RELEASE_TAG.zip
 
             az storage blob upload \
               --account-name $AZURE_STORAGE_ACCOUNT \
               --account-key $AZURE_STORAGE_KEY \
               --container-name $AZURE_CONTAINER \
-              --file getapp-images-${RELEASE_TAG}.zip \
-              --name getapp-images-${RELEASE_TAG}.zip
+              --file getapp-images-$RELEASE_TAG.zip \
+              --name getapp-images-$RELEASE_TAG.zip
 
 
       - name: Generate Download Link
