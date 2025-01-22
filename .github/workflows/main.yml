@@ -146,21 +146,21 @@ jobs:
           #-------------------------------------------------#
           # create getapp-release-info.txt
           rm $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          cp getapp-release-info-template.txt getapp-release-info-template-1.txt
+          cp ./stuff/getapp-release-info-template.txt ./stuff/getapp-release-info-template-1.txt
           /bin/bash templater $GITHUB_WORKSPACE/stuff/getapp-release-info-template-1.txt >> $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          rm getapp-release-info-template-1.txt
+          rm ./stuff/getapp-release-info-template-1.txt
           
           # create getapp-images-list.txt
           rm $GITHUB_WORKSPACE/getapp-images-list.txt
-          cp images-list-template.txt images-list-template-1.txt
+          cp ./stuff/images-list-template.txt ./stuff/images-list-template-1.txt
           /bin/bash templater $GITHUB_WORKSPACE/stuff/images-list-template-1.txt >> $GITHUB_WORKSPACE/getapp-images-list.txt
-          rm images-list-template-1.txt
+          rm ./stuff/images-list-template-1.txt
 
           # create getapp-images-list.txt
           rm $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
-          cp ./docker-compose-template.txt docker-compose-template-1.txt
+          cp ./stuff/docker-compose-template.txt ./stuff/docker-compose-template-1.txt
           /bin/bash templater $GITHUB_WORKSPACE/stuff/docker-compose-template-1.txt >> $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
-          rm docker-compose-template-1.txt
+          rm ./stuff/docker-compose-template-1.txt
 
           # test the results
           cat stuff/getapp-release-info.txt
