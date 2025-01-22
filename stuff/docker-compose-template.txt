@@ -1,5 +1,5 @@
 #--------------------------------------------------
-# GETAPP_RELEASE_TAG}: ${{GETAPP_RELEASE_TAG}}
+# GETAPP_RELEASE_TAG: {{{GETAPP_RELEASE_TAG}}
 # docker compose file for deploying getapp on elbit VM
 #--------------------------------------------------
 
@@ -8,7 +8,7 @@ version: '3.6'
 services:
   api:
     container_name: api
-    image: harbor.getapp.sh/getapp-dev/api:${API_TAG}
+    image: harbor.getapp.sh/getapp-dev/api:{{API_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -21,7 +21,7 @@ services:
 
   delivery:
     container_name: delivery
-    image: harbor.getapp.sh/getapp-dev/delivery:${DELIVERY_TAG}
+    image: harbor.getapp.sh/getapp-dev/delivery:{{DELIVERY_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -35,7 +35,7 @@ services:
 
   deploy:
     container_name: deploy
-    image: harbor.getapp.sh/getapp-dev/deploy:${DEPLOY_TAG}
+    image: harbor.getapp.sh/getapp-dev/deploy:{{DEPLOY_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -46,7 +46,7 @@ services:
 
   discovery:
     container_name: discovery
-    image: harbor.getapp.sh/getapp-dev/discovery:${DISCOVERY_TAG}
+    image: harbor.getapp.sh/getapp-dev/discovery:{{DISCOVERY_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -57,7 +57,7 @@ services:
 
   offering:
     container_name: offering
-    image: harbor.getapp.sh/getapp-dev/offering:${OFFERING_TAG}
+    image: harbor.getapp.sh/getapp-dev/offering:{{OFFERING_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -68,7 +68,7 @@ services:
 
   project-management:
     container_name: project-management
-    image: harbor.getapp.sh/getapp-dev/project-managment:${PROJECT_MANAGEMENT_TAG}
+    image: harbor.getapp.sh/getapp-dev/project-managment:{{PROJECT_MANAGEMENT_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -79,7 +79,7 @@ services:
 
   upload:
     container_name: upload
-    image: harbor.getapp.sh/getapp-dev/upload:${UPLOAD_TAG}
+    image: harbor.getapp.sh/getapp-dev/upload:{{UPLOAD_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -90,7 +90,7 @@ services:
 
   docs:
     container_name: docs
-    image: harbor.getapp.sh/getapp-dev/docs:${DOCS_TAG}
+    image: harbor.getapp.sh/getapp-dev/docs:{{DOCS_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -102,7 +102,7 @@ services:
 
   getmap-node:
     container_name: getmap
-    image: harbor.getapp.sh/getapp-dev/getmap-node:${GETMAP_TAG}
+    image: harbor.getapp.sh/getapp-dev/getmap-node:{{GETMAP_TAG}}
     restart: always
     env_file:
       - .env.dev
@@ -125,7 +125,7 @@ services:
   
   dashboard:
     container_name: dashboard
-    image: harbor.getapp.sh/getapp-dev/dashboard:${DASHBOARD_TAG}
+    image: harbor.getapp.sh/getapp-dev/dashboard:{{DASHBOARD_TAG}}
     restart: always
     env_file:
       - .env.production
@@ -179,7 +179,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: J3-X}plSnqw5M~c
+      POSTGRES_PASSWORD: J3-X}}plSnqw5M~c
       POSTGRES_DB: get_app
     ports:
       - 5432:5432
