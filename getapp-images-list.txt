@@ -1,0 +1,10 @@
+harbor.getapp.sh/getapp-dev/api:
+harbor.getapp.sh/getapp-dev/delivery:
+harbor.getapp.sh/getapp-dev/deploy:
+harbor.getapp.sh/getapp-dev/discovery:
+harbor.getapp.sh/getapp-dev/offering:
+harbor.getapp.sh/getapp-dev/project-managment:
+harbor.getapp.sh/getapp-dev/upload:
+harbor.getapp.sh/getapp-dev/getmap-node:
+harbor.getapp.sh/getapp-dev/dashboard:
+harbor.getapp.sh/getapp-dev/docs:
