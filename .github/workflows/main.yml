@@ -312,9 +312,12 @@ jobs:
       with:
         node-version: '16'
 
-    - name: Authenticate with GitHub CLI
-      run: gh auth login --with-token <<< "$GITHUB_TOKEN"
-
+    - name: GitHub CLI Authentication
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh api user
+        
     - name: Create GitHub Release
       id: create_release
 
