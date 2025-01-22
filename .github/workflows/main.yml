@@ -293,17 +293,13 @@ jobs:
 
 
 
-  create-release:
-    runs-on: ubuntu-latest
-    needs: upload_to_azure
-    env:
-      RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-
   build:
     name: Create Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
     
     steps:
       - name: Checkout code
