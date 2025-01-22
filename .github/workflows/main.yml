@@ -120,9 +120,9 @@ jobs:
           source $GITHUB_WORKSPACE/.env
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt)\"" > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/images-list-template.txt)\"" > $GITHUB_WORKSPACE/getapp-images-list.txt
-          eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt)\"" > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
+          echo "$(cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt)" > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
 
-
+          cp $GITHUB_WORKSPACE/.env $GITHUB_WORKSPACE/$GITHUB_WORKSPACE/docker-compose/.env
           # test the results
           echo "getapp-images-list NEW file:"
           cat getapp-images-list.txt
@@ -178,7 +178,7 @@ jobs:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
         run: |
-          zip -r getapp-chart-${RELEASE_TAG}.zip .
+          zip -r getapp-chart-$RELEASE_TAG.zip . -x "*.git*"
         shell: bash
 
       - name: Upload zipped files
@@ -206,7 +206,7 @@ jobs:
   #       run: |
   #         chmod +x getapp-images-to-tar.sh
   #         ./getapp-images-to-tar.sh
-  #         mv *.zip getapp-images-${RELEASE_TAG}.zip
+  #         mv *.zip getapp-images-$RELEASE_TAG.zip
 
   #     - name: Upload zipped files
   #       uses: actions/upload-artifact@v3

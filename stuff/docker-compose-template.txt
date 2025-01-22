@@ -133,7 +133,7 @@ services:
     #   - getapp
     ports:
       - 3002:3002
-    #command: sh -c "npm run build && npm run start"
+    command: sh -c "npm run build && npm run start"
 
 
   libot-emu:
