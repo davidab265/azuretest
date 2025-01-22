@@ -120,7 +120,7 @@ jobs:
           source $GITHUB_WORKSPACE/.env
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt)\"" > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/images-list-template.txt)\"" > $GITHUB_WORKSPACE/getapp-images-list.txt
-          eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt)\"" > $GITHUB_WORKSPACE/stuff/docker-compose/docker-compose.yaml
+          eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt)\"" > $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
 
 
           # test the results
