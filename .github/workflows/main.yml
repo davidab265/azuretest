@@ -192,77 +192,81 @@ jobs:
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
   
-  # zip_images:
-  #   needs:
-  #     - get_all_microservices_tags
-  #     - calculate_new_tag
-  #     - create_files_with_updated_env
-  #   runs-on: ubuntu-latest
+  zip_images:
+    needs:
+      - get_all_microservices_tags
+      - calculate_new_tag
+      - create_files_with_updated_env
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: zip images
-  #       env:
-  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+      - name: zip images
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
-  #       run: |
-  #         chmod +x getapp-images-to-tar.sh
-  #         ./getapp-images-to-tar.sh
-  #         mv *.zip getapp-images-$RELEASE_TAG.zip
+        run: |
+          chmod +x getapp-images-to-tar.sh
+          ./getapp-images-to-tar.sh
+          mv *.zip getapp-images-$RELEASE_TAG.zip
 
-  #     - name: Upload zipped files
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: getapp-images
-  #         path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: getapp-images
+          path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
             
-  # upload_to_azure:
-  #   runs-on: ubuntu-latest
-  #   needs: 
-  #     - create_files_with_updated_env
-  #     - zip_images
-  #   steps:
-  #     - name: Download zipped files
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: getapp-chart
+  upload_to_azure:
+    runs-on: ubuntu-latest
+    needs: 
+      - create_files_with_updated_env
+      - zip_images
+    steps:
+      - name: Download zipped files
+        uses: actions/download-artifact@v3
+        with:
+          name: getapp-chart
 
-  #     - name: Download zipped files
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: getapp-images
+      - name: Download zipped files
+        uses: actions/download-artifact@v3
+        with:
+          name: getapp-images
   
-  #     - name: Upload file to Azure Storage
-  #       uses: azure/CLI@v1
-  #       with:
-  #         inlineScript: |
-  #           az storage blob upload \
-  #             --account-name $AZURE_STORAGE_ACCOUNT \
-  #             --account-key $AZURE_STORAGE_KEY \
-  #             --container-name $AZURE_CONTAINER \
-  #             --file getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip \
-  #             --name getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
+      - name: Upload file to Azure Storage
+        uses: azure/CLI@v1
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
 
-  #           az storage blob upload \
-  #             --account-name $AZURE_STORAGE_ACCOUNT \
-  #             --account-key $AZURE_STORAGE_KEY \
-  #             --container-name $AZURE_CONTAINER \
-  #             --file getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip \
-  #             --name getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+        with:
+          inlineScript: |
+            az storage blob upload \
+              --account-name $AZURE_STORAGE_ACCOUNT \
+              --account-key $AZURE_STORAGE_KEY \
+              --container-name $AZURE_CONTAINER \
+              --file getapp-chart-$RELEASE_TAG.zip \
+              --name getapp-chart-$RELEASE_TAG.zip
 
-  #       env:
-  #         AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-  #         AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-  #         AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+            az storage blob upload \
+              --account-name $AZURE_STORAGE_ACCOUNT \
+              --account-key $AZURE_STORAGE_KEY \
+              --container-name $AZURE_CONTAINER \
+              --file getapp-images-$RELEASE_TAG.zip \
+              --name getapp-images-$RELEASE_TAG.zip
 
-  #     - name: Generate Download Link
-  #       id: get-link
-  #       env:
-  #         AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-  #         AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
-  #       run: |
-  #         echo "https://${AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/${AZURE_CONTAINER}/repo-files.zip" > download_link.txt
-  #         cat download_link.txt
+
+      - name: Generate Download Link
+        id: get-link
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+        run: |
+            echo "https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-images-$RELEASE_TAG.zip.zip" > download_link.txt
+            cat download_link.txt
