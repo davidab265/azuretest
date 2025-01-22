@@ -148,19 +148,19 @@ jobs:
           # create getapp-release-info.txt
           rm $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           cp ./stuff/getapp-release-info-template.txt ./stuff/getapp-release-info-template-1.txt
-          ./$GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/getapp-release-info-template-1.txt >> $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
+          $GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/getapp-release-info-template-1.txt >> $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
           rm ./stuff/getapp-release-info-template-1.txt
           
           # create getapp-images-list.txt
           rm $GITHUB_WORKSPACE/getapp-images-list.txt
           cp ./stuff/images-list-template.txt ./stuff/images-list-template-1.txt
-          /bin/bash ./$GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/images-list-template-1.txt >> $GITHUB_WORKSPACE/getapp-images-list.txt
+          /bin/bash $GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/images-list-template-1.txt >> $GITHUB_WORKSPACE/getapp-images-list.txt
           rm ./stuff/images-list-template-1.txt
 
           # create getapp-images-list.txt
           rm $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
           cp ./stuff/docker-compose-template.txt ./stuff/docker-compose-template-1.txt
-          /bin/bash ./$GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/docker-compose-template-1.txt >> $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
+          /bin/bash $GITHUB_WORKSPACE/templater $GITHUB_WORKSPACE/stuff/docker-compose-template-1.txt >> $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
           rm ./stuff/docker-compose-template-1.txt
 
           # test the results
