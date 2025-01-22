@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       #tag: ${{ steps.set_tag.outputs.NEW_TAG }}
-      tag: 1.3.1
+      tag: 1.3.10
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
