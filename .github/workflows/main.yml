@@ -117,8 +117,8 @@ jobs:
             VERSION: 1.2.3
             INSTANCE: staging
         with:
-          input: getapp-release-info-template.txt
-          output: getapp-release-info.txt
+          input: $GITHUB_WORKSPACE/getapp-release-info-template.txt
+          output: $GITHUB_WORKSPACE/getapp-release-info.txt
 
       - name: create files - 2
         uses: danielr1996/envsubst-action@1.0.0
@@ -126,8 +126,8 @@ jobs:
             VERSION: 1.2.3
             INSTANCE: staging
         with:
-          input: ./stuff/images-list-template.txt
-          output: getapp-images-list.txt
+          input: $GITHUB_WORKSPACE/stuff/images-list-template.txt
+          output: $GITHUB_WORKSPACE/getapp-images-list.txt
 
       - name: create files - 3 
         uses: danielr1996/envsubst-action@1.0.0
@@ -135,8 +135,8 @@ jobs:
             VERSION: 1.2.3
             INSTANCE: staging
         with:
-          input: ./stuff/docker-compose-template-1.txt
-          output: ./docker-compose/docker-compose.yaml
+          input: $GITHUB_WORKSPACE/stuff/docker-compose-template-1.txt
+          output: $GITHUB_WORKSPACE/docker-compose/docker-compose.yaml
 
 
       - name: Create release files
