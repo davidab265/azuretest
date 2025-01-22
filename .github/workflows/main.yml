@@ -115,7 +115,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           #!/bin/bash
-          set -ex
+          set -x
           pwd
           source $GITHUB_WORKSPACE/.env
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt)\"" > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
