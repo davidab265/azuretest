@@ -298,9 +298,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-    needs: upload_to_azure
     
     steps:
       - name: Checkout code
@@ -308,21 +305,23 @@ jobs:
         with:
           fetch-depth: 0 # Important for getting all tags and history
 
-      - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Get tag name
+        id: get_tag
+        run: |
+          TAG_NAME=${GITHUB_REF/refs\/tags\//}
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
       - name: Generate changelog
         id: changelog
         run: |
           # Get commits since last tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.get_version.outputs.VERSION }}^ 2>/dev/null || echo "")
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.get_tag.outputs.TAG_NAME }}^ 2>/dev/null || echo "")
           if [ -z "$PREVIOUS_TAG" ]; then
             # If no previous tag exists, get all commits
-            CHANGELOG=$(git log --pretty=format:"* %s" ${{ steps.get_version.outputs.VERSION }})
+            CHANGELOG=$(git log --pretty=format:"* %s" ${{ steps.get_tag.outputs.TAG_NAME }})
           else
             # Get commits between tags
-            CHANGELOG=$(git log --pretty=format:"* %s" $PREVIOUS_TAG..${{ steps.get_version.outputs.VERSION }})
+            CHANGELOG=$(git log --pretty=format:"* %s" $PREVIOUS_TAG..${{ steps.get_tag.outputs.TAG_NAME }})
           fi
           # Escape newlines for GitHub Actions
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
@@ -335,8 +334,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
+          release_name: Release ${{ steps.get_tag.outputs.TAG_NAME }}
           body: |
             ## What's Changed
             ${{ steps.changelog.outputs.CHANGELOG }}
