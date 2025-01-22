@@ -72,7 +72,11 @@ jobs:
               echo "Warning: No tag found for ${REPO}"
             fi
           done
-          
+          # docs
+          DOCS_TAG=$(curl -s https://api.github.com/repos/getappsh/docs/releases/latest | jq -r '.tag_name')
+          echo "the docs tag is $DOCS_TAG"
+          echo DOCS_TAG=${DOCS_TAG} >> .env
+
           # Print the final contents without line numbers
           echo "Final .env contents:"
           cat .env
