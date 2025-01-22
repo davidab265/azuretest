@@ -300,6 +300,7 @@ jobs:
       contents: write
     env:
       RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+    needs: upload_to_azure
     
     steps:
       - name: Checkout code
