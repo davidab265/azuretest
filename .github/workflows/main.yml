@@ -151,7 +151,7 @@ jobs:
           sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" integration-chart/values.yml
           sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" integration-chart/values.yml
 
-          # getapp and getmap #
+          # getapp and getmap ##
           sed -E -i "s,configmap":" .*,configmap":" ${NAMESPACE},g" integration-chart/values.yml
           sed -E -i "s,routePrefix":" .*,routePrefix":" ${NAMESPACE},g" integration-chart/values.yml
           sed -E -i "s,dbName":" .*,dbName":" ${NAMESPACE},g" integration-chart/values.yml
