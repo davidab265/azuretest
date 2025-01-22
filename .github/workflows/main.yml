@@ -231,10 +231,10 @@ jobs:
         with:
           name: getapp-chart
 
-      - name: Download zipped files
-        uses: actions/download-artifact@v3
-        with:
-          name: getapp-images
+      # - name: Download zipped files
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: getapp-images
   
       - name: Upload file to Azure Storage
         uses: azure/CLI@v1
