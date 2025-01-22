@@ -119,10 +119,14 @@ jobs:
           pwd
           source $GITHUB_WORKSPACE/.env
           eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/getapp-release-info-template.txt)\"" > $GITHUB_WORKSPACE/stuff/getapp-release-info.txt
-          # envsubst < $GITHUB_WORKSPACE/stuff/images-list-template.txt > $GITHUB_WORKSPACE/getapp-images-list.txt
-          # envsubst < $GITHUB_WORKSPACE/stuff/docker-compose-template.txt > $GITHUB_WORKS
+          eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/images-list-template.txt)\"" > $GITHUB_WORKSPACE/getapp-images-list.txt
+          eval "echo \"$(cat $GITHUB_WORKSPACE/stuff/docker-compose-template.txt)\"" > $GITHUB_WORKSPACE/stuff/docker-compose/docker-compose.yaml
+
+
           # test the results
+          echo "getapp-images-list NEW file:"
           cat getapp-images-list.txt
+          echo "getapp-release-info.txt NEW file:"
           cat stuff/getapp-release-info.txt
 
           cat stuff/getapp-release-info.txt > readme.md
@@ -154,12 +158,14 @@ jobs:
           # git push
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
-          echo "================================================================"
           echo test >> stuff/nothing
           rm -f GetAppAgent* || true
           rm agent.exe || true
+
           # chmod +x ./stuff/pull-github-artifacts.sh
-          # ./stuff/pull-github-artifacts.sh
+          # ./stuff/pull-github-artifacts.sh          # chmod +x ./stuff/pull-github-artifacts.sh
+
+
           git add .
           git tag $RELEASE_TAG || true
           git commit -m "Automated commit from GitHub Actions"
