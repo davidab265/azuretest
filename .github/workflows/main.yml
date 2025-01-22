@@ -192,38 +192,38 @@ jobs:
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
   
-  zip_images:
-    needs:
-      - get_all_microservices_tags
-      - calculate_new_tag
-      - create_files_with_updated_env
-    runs-on: ubuntu-latest
+  # zip_images:
+  #   needs:
+  #     - get_all_microservices_tags
+  #     - calculate_new_tag
+  #     - create_files_with_updated_env
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: zip images
-        env:
-          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+  #     - name: zip images
+  #       env:
+  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
-        run: |
-          chmod +x getapp-images-to-tar.sh
-          ./getapp-images-to-tar.sh
-          mv *.zip getapp-images-$RELEASE_TAG.zip
+  #       run: |
+  #         chmod +x getapp-images-to-tar.sh
+  #         ./getapp-images-to-tar.sh
+  #         mv *.zip getapp-images-$RELEASE_TAG.zip
 
-      - name: Upload zipped files
-        uses: actions/upload-artifact@v3
-        with:
-          name: getapp-images
-          path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+  #     - name: Upload zipped files
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: getapp-images
+  #         path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
             
   upload_to_azure:
     runs-on: ubuntu-latest
     needs: 
       - create_files_with_updated_env
-      - zip_images
+      # - zip_images
       - calculate_new_tag
     steps:
       - name: Download zipped files
@@ -239,10 +239,12 @@ jobs:
       - name: Upload file to Azure Storage
         uses: azure/CLI@v1
         env:
-          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-          AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          # AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          # AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+          AZURE_STORAGE_ACCOUNT: getapprelease
+          AZURE_CONTAINER: getapp
 
         with:
           inlineScript: |
@@ -253,21 +255,73 @@ jobs:
               --file getapp-chart-$RELEASE_TAG.zip \
               --name getapp-chart-$RELEASE_TAG.zip
 
-            az storage blob upload \
-              --account-name $AZURE_STORAGE_ACCOUNT \
-              --account-key $AZURE_STORAGE_KEY \
-              --container-name $AZURE_CONTAINER \
-              --file getapp-images-$RELEASE_TAG.zip \
-              --name getapp-images-$RELEASE_TAG.zip
+            # az storage blob upload \
+            #   --account-name $AZURE_STORAGE_ACCOUNT \
+            #   --account-key $AZURE_STORAGE_KEY \
+            #   --container-name $AZURE_CONTAINER \
+            #   --file getapp-images-$RELEASE_TAG.zip \
+            #   --name getapp-images-$RELEASE_TAG.zip
 
 
       - name: Generate Download Link
         id: get-link
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-          AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
+          AZURE_STORAGE_ACCOUNT: getapprelease
+          AZURE_CONTAINER: getapp
         run: |
-            echo "https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-images-$RELEASE_TAG.zip.zip" > download_link.txt
-            cat download_link.txt
+          echo "# Downloads links for GetApp system" > README.md
+          echo "" >> README.md
+          echo "## Available Versions" >> README.md
+          echo "" >> README.md
+          echo "### Code files - Helm & Docker-compose" >> README.md
+          echo "* [Helm & Docker-compose](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-chart-$RELEASE_TAG.zip)" >> README.md
+          echo "" >> README.md
+          echo "### Docker images" >> README.md
+          echo "* [Docker images](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-images-$RELEASE_TAG.zip)" >> README.md
+          echo ""
+          cat README.md
+
+      - name: Upload README.md file
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-note
+          path: README.md
+
+
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: upload_to_azure
+    env:
+      RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download README.md
+      uses: actions/download-artifact@v3
+      with:
+        name: release-note
+
+
+    - name: Set up GitHub CLI
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Authenticate with GitHub CLI
+      run: gh auth login --with-token <<< "$GITHUB_TOKEN"
+
+    - name: Create GitHub Release
+      id: create_release
+
+      run: |
+        gh release create "$RELEASE_TAG" \
+          --title "GetApp Release" \
+          --notes-file README.md
+
+    - name: Upload README.md as a release asset
+      run: |
+        gh release upload $RELEASE_TAG README.md
