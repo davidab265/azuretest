@@ -173,7 +173,7 @@ jobs:
           git add .
           git tag $RELEASE_TAG || true
           git commit -m "Automated commit from GitHub Actions"
-          git push origin main
+          git push origin main --tags
 
         shell: bash
 
@@ -317,7 +317,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh api user
-        
+
     - name: Create GitHub Release
       id: create_release
 
