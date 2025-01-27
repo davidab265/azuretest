@@ -256,7 +256,7 @@ jobs:
               --account-key $AZURE_STORAGE_KEY \
               --container-name $AZURE_CONTAINER \
               --file getapp-chart-$RELEASE_TAG.zip \
-              --name getapp-chart-$RELEASE_TAG.zip
+              --name getapp-chart-$RELEASE_TAG.zip --overwrite
 
             # az storage blob upload \
             #   --account-name $AZURE_STORAGE_ACCOUNT \
@@ -305,29 +305,29 @@ jobs:
         with:
           fetch-depth: 0 # Important for getting all tags and history
 
-      - name: Get tag name
-        id: get_tag
-        run: |
-          TAG_NAME=1111
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+      # - name: Get tag name
+      #   id: get_tag
+      #   run: |
+      #     TAG_NAME=1111
+      #     echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
-      - name: Generate changelog
-        id: changelog
-        run: |
-          # Get commits since last tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.get_tag.outputs.TAG_NAME }}^ 2>/dev/null || echo "")
-          if [ -z "$PREVIOUS_TAG" ]; then
-            # If no previous tag exists, get all commits
-            CHANGELOG=$(git log --pretty=format:"* %s" ${{ steps.get_tag.outputs.TAG_NAME }})
-          else
-            # Get commits between tags
-            CHANGELOG=$(git log --pretty=format:"* %s" $PREVIOUS_TAG..${{ steps.get_tag.outputs.TAG_NAME }})
-          fi
-          # Escape newlines for GitHub Actions
-          CHANGELOG="${CHANGELOG//'%'/'%25'}"
-          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
-          echo "CHANGELOG=$CHANGELOG" >> $GITHUB_OUTPUT
+      # - name: Generate changelog
+      #   id: changelog
+      #   run: |
+      #     # Get commits since last tag
+      #     PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.get_tag.outputs.TAG_NAME }}^ 2>/dev/null || echo "")
+      #     if [ -z "$PREVIOUS_TAG" ]; then
+      #       # If no previous tag exists, get all commits
+      #       CHANGELOG=$(git log --pretty=format:"* %s" ${{ steps.get_tag.outputs.TAG_NAME }})
+      #     else
+      #       # Get commits between tags
+      #       CHANGELOG=$(git log --pretty=format:"* %s" $PREVIOUS_TAG..${{ steps.get_tag.outputs.TAG_NAME }})
+      #     fi
+      #     # Escape newlines for GitHub Actions
+      #     CHANGELOG="${CHANGELOG//'%'/'%25'}"
+      #     CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+      #     CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+      #     echo "CHANGELOG=$CHANGELOG" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: actions/create-release@v1
@@ -336,8 +336,10 @@ jobs:
         with:
           tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
           release_name: Release ${{ steps.get_tag.outputs.TAG_NAME }}
-          body: |
-            ## What's Changed
-            ${{ steps.changelog.outputs.CHANGELOG }}
+          body: "sdf adsf asdf ads ad a"
+
+          # body: |
+          #   ## What's Changed
+          #  # ${{ steps.changelog.outputs.CHANGELOG }}
           draft: false
           prerelease: false
