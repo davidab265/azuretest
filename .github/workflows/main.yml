@@ -293,12 +293,12 @@ jobs:
 
 
 
-  build:
+  release:
     name: Create Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+    needs: upload_to_azure
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
