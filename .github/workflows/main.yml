@@ -298,7 +298,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: upload_to_azure
+    needs: 
+      - upload_to_azure
+      - calculate_new_tag
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -334,8 +336,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
-          release_name: Release ${{ steps.get_tag.outputs.TAG_NAME }}
+          tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
+          release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
           body: "sdf adsf asdf ads ad a"
 
           # body: |
