@@ -339,6 +339,11 @@ jobs:
         with:
           fetch-depth: 0 # Important for getting all tags and history
 
+      - name: Download release notes
+        uses: actions/download-artifact@v3
+        with:
+          name: release-note
+  
       # - name: Get tag name
       #   id: get_tag
       #   run: |
