@@ -287,8 +287,8 @@ jobs:
               --account-name $AZURE_STORAGE_ACCOUNT \
               --account-key $AZURE_STORAGE_KEY \
               --container-name $AZURE_CONTAINER \
-              --file zip getapp-full-release-$RELEASE_TAG.zip \
-              --name zip getapp-full-release-$RELEASE_TAG.zip 
+              --file getapp-full-release-$RELEASE_TAG.zip \
+              --name getapp-full-release-$RELEASE_TAG.zip 
 
             # az storage blob upload \
             #   --account-name $AZURE_STORAGE_ACCOUNT \
