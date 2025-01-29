@@ -194,32 +194,56 @@ jobs:
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
   
-  # zip_images:
-  #   needs:
-  #     - get_all_microservices_tags
-  #     - calculate_new_tag
-  #     - create_files_with_updated_env
-  #   runs-on: ubuntu-latest
+  zip_images:
+    needs:
+      - get_all_microservices_tags
+      - calculate_new_tag
+      - create_files_with_updated_env
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: zip images
-  #       env:
-  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+      - name: zip images
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
-  #       run: |
-  #         chmod +x getapp-images-to-tar.sh
-  #         ./getapp-images-to-tar.sh
-  #         mv *.zip getapp-images-$RELEASE_TAG.zip
+        run: |
+          chmod +x getapp-images-to-tar.sh
+          ./getapp-images-to-tar.sh
+          mv *.zip getapp-images-$RELEASE_TAG.zip
 
-  #     - name: Upload zipped files
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: getapp-images
-  #         path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: getapp-images
+          path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
+  zip_images_and_chart:
+    needs:
+      - calculate_new_tag
+      - create_files_with_updated_env
+      - zip_images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: zip chart and images to one file
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+
+        run: |
+          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
+
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: getapp-images-and-chart
+          path: getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip
+        
             
   upload_to_azure:
     runs-on: ubuntu-latest
@@ -231,12 +255,7 @@ jobs:
       - name: Download zipped files
         uses: actions/download-artifact@v3
         with:
-          name: getapp-chart
-
-      # - name: Download zipped files
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: getapp-images
+          name: getapp-images-and-chart
   
       - name: Upload file to Azure Storage
         uses: azure/CLI@v1
@@ -255,8 +274,8 @@ jobs:
               --account-name $AZURE_STORAGE_ACCOUNT \
               --account-key $AZURE_STORAGE_KEY \
               --container-name $AZURE_CONTAINER \
-              --file getapp-chart-$RELEASE_TAG.zip \
-              --name getapp-chart-$RELEASE_TAG.zip --overwrite
+              --file zip getapp-full-release-$RELEASE_TAG.zip \
+              --name zip getapp-full-release-$RELEASE_TAG.zip --overwrite
 
             # az storage blob upload \
             #   --account-name $AZURE_STORAGE_ACCOUNT \
@@ -278,10 +297,10 @@ jobs:
           echo "## Available Versions" >> README.md
           echo "" >> README.md
           echo "### Code files - Helm & Docker-compose" >> README.md
-          echo "* [Helm & Docker-compose](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-chart-$RELEASE_TAG.zip)" >> README.md
+          echo "* [Helm & Docker-compose](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/zip getapp-full-release-$RELEASE_TAG.zip)" >> README.md
           echo "" >> README.md
           echo "### Docker images" >> README.md
-          echo "* [Docker images](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-images-$RELEASE_TAG.zip)" >> README.md
+          echo "* [Docker images](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/zip getapp-full-release-$RELEASE_TAG.zip)" >> README.md
           echo ""
           cat README.md
 
@@ -331,6 +350,10 @@ jobs:
       #     CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
       #     echo "CHANGELOG=$CHANGELOG" >> $GITHUB_OUTPUT
 
+      - name: Read Release Notes
+        id: read_release_notes
+        run: echo "body=$(cat README.md)" >> $GITHUB_ENV
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -338,10 +361,22 @@ jobs:
         with:
           tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
           release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
-          body: "sdf adsf asdf ads ad a"
-
-          # body: |
-          #   ## What's Changed
-          #  # ${{ steps.changelog.outputs.CHANGELOG }}
+          body: ${{ env.body }}
           draft: false
           prerelease: false
+
+      # - name: Create Release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
+      #     release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
+      #     body: |
+      #       $(cat README.md)
+
+      #     # body: |
+      #     #   ## What's Changed
+      #     #  # ${{ steps.changelog.outputs.CHANGELOG }}
+      #     draft: false
+      #     prerelease: false
