@@ -310,15 +310,12 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          AZURE_STORAGE_ACCOUNT: getapprelease
-          AZURE_CONTAINER: getapp
         with:
           tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
           release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
           body: |
             # Downloads link for GetApp system"
-            "[Helm & Docker-compose & Docker images](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-full-release-$RELEASE_TAG.zip)"
+            "[Helm & Docker-compose & Docker images](https://getapprelease.blob.core.windows.net/getapp/getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip)"
 
           draft: false
           prerelease: false
