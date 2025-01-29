@@ -18,7 +18,7 @@ getapp-api:
 # https://gitlab.getapp.sh/getapp/Main-version-control/getapp-release-versions/-/blob/master/.gitlab-ci.yml
 #
 #--------------------------------------------------------------------------------
-  gitlabrelease: 1.3.10
+  gitlabrelease: 1.3.11
   repository: harbor.getapp.sh/getapp-dev/
   tag:
     api: 1.3.87-develop
