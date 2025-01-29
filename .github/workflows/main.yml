@@ -204,33 +204,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # - name: zip images
-      #   env:
-      #     RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+      - name: zip images
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
-      #   run: |
-      #     chmod +x getapp-images-to-tar.sh
-      #     ./getapp-images-to-tar.sh
-      #     mv *.zip getapp-images-$RELEASE_TAG.zip
+        run: |
+          chmod +x getapp-images-to-tar.sh
+          ./getapp-images-to-tar.sh
+          mv *.zip getapp-images-$RELEASE_TAG.zip
 
-      # - name: Upload zipped files
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: getapp-images
-      #     path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: getapp-images
+          path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
   zip_images_and_chart:
     needs:
       - calculate_new_tag
       - create_files_with_updated_env
-      # - zip_images
+      - zip_images
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Download getapp-images
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: getapp-images
+      - name: Download getapp-images
+        uses: actions/download-artifact@v3
+        with:
+          name: getapp-images
 
       - name: Download getapp-chart
         uses: actions/download-artifact@v3
@@ -244,8 +244,7 @@ jobs:
         run: |
           pwd
           ls -la
-          # zip getapp-full-release-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-images-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-chart-$RELEASE_TAG.zip
-          zip getapp-full-release-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
+          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
 
       - name: Upload zipped files
         uses: actions/upload-artifact@v3
@@ -265,10 +264,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: getapp-images-and-chart
-      - name: test if file exists
-        run: |
-          pwd
-          ls -la
           
       - name: Upload file to Azure Storage
         uses: azure/CLI@v1
@@ -276,8 +271,6 @@ jobs:
           #AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
           AZURE_STORAGE_KEY: 2R7B3iZ+NyFOZum+M7Co42jvxGhhGKTVSs276w+605gzSOcdc4jrifQjUtvqLGa/HSXnNhbqm+rS+AStq/q8Iw==
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          # AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
-          # AZURE_CONTAINER: ${{ secrets.AZURE_CONTAINER }}
           AZURE_STORAGE_ACCOUNT: getapprelease
           AZURE_CONTAINER: getapp
 
@@ -299,6 +292,7 @@ jobs:
     needs: 
       - upload_to_azure
       - calculate_new_tag
+      - create_files_with_updated_env
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -314,8 +308,15 @@ jobs:
           tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
           release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
           body: |
-            # Downloads link for GetApp system"
-            "[Helm & Docker-compose & Docker images](https://getapprelease.blob.core.windows.net/getapp/getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip)"
+            ## Downloads link for GetApp system
+            [Helm & Docker-compose & Docker images](https://getapprelease.blob.core.windows.net/getapp/getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip)
+            Click to download.
+
+            # Content of the zip file
+            The zip file contains another 2 zip files.
+            one contains the Helm chart and docker-compose files necessary for deploying on VM or kubernetes. 
+            The other contains the Docker image files them self.
+            Use the 1-click installation script to deploy the system.
 
           draft: false
           prerelease: false
