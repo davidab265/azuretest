@@ -235,7 +235,7 @@ jobs:
 
         run: |
           # zip getapp-full-release-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-images-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-chart-$RELEASE_TAG.zip
-          zip getapp-full-release-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-chart-$RELEASE_TAG.zip
+          zip getapp-full-release-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
 
       - name: Upload zipped files
         uses: actions/upload-artifact@v3
