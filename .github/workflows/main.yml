@@ -290,40 +290,6 @@ jobs:
               --file getapp-full-release-$RELEASE_TAG.zip \
               --name getapp-full-release-$RELEASE_TAG.zip 
 
-            # az storage blob upload \
-            #   --account-name $AZURE_STORAGE_ACCOUNT \
-            #   --account-key $AZURE_STORAGE_KEY \
-            #   --container-name $AZURE_CONTAINER \
-            #   --file getapp-images-$RELEASE_TAG.zip \
-            #   --name getapp-images-$RELEASE_TAG.zip
-
-
-      - name: Generate Download Link
-        id: get-link
-        env:
-          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          AZURE_STORAGE_ACCOUNT: getapprelease
-          AZURE_CONTAINER: getapp
-        run: |
-          echo "# Downloads links for GetApp system" > README.md
-          echo "" >> README.md
-          echo "## Available Versions" >> README.md
-          echo "" >> README.md
-          echo "### Code files - Helm & Docker-compose" >> README.md
-          echo "* [Helm & Docker-compose](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/zip getapp-full-release-$RELEASE_TAG.zip)" >> README.md
-          echo "" >> README.md
-          echo "### Docker images" >> README.md
-          echo "* [Docker images](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/zip getapp-full-release-$RELEASE_TAG.zip)" >> README.md
-          echo ""
-          cat README.md
-
-      - name: Upload README.md file
-        uses: actions/upload-artifact@v3
-        with:
-          name: release-note
-          path: README.md
-
-
 
   release:
     name: Create Release
@@ -339,62 +305,21 @@ jobs:
         with:
           fetch-depth: 0 # Important for getting all tags and history
 
-      - name: Download release notes
-        uses: actions/download-artifact@v3
-        with:
-          name: release-note
-  
-      # - name: Get tag name
-      #   id: get_tag
-      #   run: |
-      #     TAG_NAME=1111
-      #     echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
-
-      # - name: Generate changelog
-      #   id: changelog
-      #   run: |
-      #     # Get commits since last tag
-      #     PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.get_tag.outputs.TAG_NAME }}^ 2>/dev/null || echo "")
-      #     if [ -z "$PREVIOUS_TAG" ]; then
-      #       # If no previous tag exists, get all commits
-      #       CHANGELOG=$(git log --pretty=format:"* %s" ${{ steps.get_tag.outputs.TAG_NAME }})
-      #     else
-      #       # Get commits between tags
-      #       CHANGELOG=$(git log --pretty=format:"* %s" $PREVIOUS_TAG..${{ steps.get_tag.outputs.TAG_NAME }})
-      #     fi
-      #     # Escape newlines for GitHub Actions
-      #     CHANGELOG="${CHANGELOG//'%'/'%25'}"
-      #     CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-      #     CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
-      #     echo "CHANGELOG=$CHANGELOG" >> $GITHUB_OUTPUT
-
-      - name: Read Release Notes
-        id: read_release_notes
-        run: echo "body=$(cat README.md)" >> $GITHUB_ENV
 
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          AZURE_STORAGE_ACCOUNT: getapprelease
+          AZURE_CONTAINER: getapp
         with:
           tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
           release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
-          body: ${{ env.body }}
+          body: |
+            # Downloads link for GetApp system"
+            "[Helm & Docker-compose & Docker images](https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$AZURE_CONTAINER/getapp-full-release-$RELEASE_TAG.zip)"
+
           draft: false
           prerelease: false
 
-      # - name: Create Release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
-      #     release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
-      #     body: |
-      #       $(cat README.md)
-
-      #     # body: |
-      #     #   ## What's Changed
-      #     #  # ${{ steps.changelog.outputs.CHANGELOG }}
-      #     draft: false
-      #     prerelease: false
