@@ -228,12 +228,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # - name: Download getapp-images
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: getapp-images
+
+      - name: Download getapp-chart
+        uses: actions/download-artifact@v3
+        with:
+          name: getapp-chart
 
       - name: zip chart and images to one file
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
         run: |
+          pwd
+          ls -la
           # zip getapp-full-release-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-images-$RELEASE_TAG.zip $GITHUB_WORKSPACE/getapp-chart-$RELEASE_TAG.zip
           zip getapp-full-release-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
 
