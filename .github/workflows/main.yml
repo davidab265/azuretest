@@ -161,6 +161,7 @@ jobs: ##
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
           cat helm-chart/values.yml
           
+          # test
           # rm -fr agent || true
           # mkdir agent || true
           # # get agent
