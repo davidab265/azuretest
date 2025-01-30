@@ -161,8 +161,8 @@ jobs:
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
           cat helm-chart/values.yml
           
-          rm -f agent/* || true
-          
+          rm -f agent/ || true
+          mkdir agent
           # get agent
           chmod +x ./scripts/github-download-agent.sh
           ./scripts/github-download-agent.sh
