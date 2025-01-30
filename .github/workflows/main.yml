@@ -161,23 +161,23 @@ jobs: ##
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
           cat helm-chart/values.yml
           
-          rm -fr agent || true
-          mkdir agent || true
-          # get agent
-          chmod +x ./scripts/github-download-agent.sh
-          ./scripts/github-download-agent.sh
-          pwd
-          ls
-          mv GetAppAgent* agent/
-          mv openapi.json agent/ || true
-          mv agent.exe agent/ || true
+          # rm -fr agent || true
+          # mkdir agent || true
+          # # get agent
+          # chmod +x ./scripts/github-download-agent.sh
+          # ./scripts/github-download-agent.sh
+          # pwd
+          # ls
+          # mv GetAppAgent* agent/
+          # mv openapi.json agent/ || true
+          # mv agent.exe agent/ || true
 
-          # get agent-ui
-          chmod +x ./scripts/github-download-agent-ui.sh
-          ./scripts/github-download-agent-ui.sh
-          mv GetAppAgent* agent/
-          mv openapi.json agent/ || true
-          mv agent.exe agent/ || true
+          # # get agent-ui
+          # chmod +x ./scripts/github-download-agent-ui.sh
+          # ./scripts/github-download-agent-ui.sh
+          # mv GetAppAgent* agent/
+          # mv openapi.json agent/ || true
+          # mv agent.exe agent/ || true
           
 
           # git push
@@ -206,12 +206,54 @@ jobs: ##
           name: getapp-chart
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
+  get_agent_and_agent_ui:
+    needs:
+      - calculate_new_tag
+      - create_files_with_updated_env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for getting all tags and history
+          ref: main  # Explicitly checkout the latest main branch state
+      - name: Create release files
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          PAT_ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          rm -fr agent || true
+          mkdir agent || true
+          # get agent
+          chmod +x ./scripts/github-download-agent.sh
+          ./scripts/github-download-agent.sh
+          pwd
+          ls
+          mv GetAppAgent* agent/
+          mv openapi.json agent/ || true
+          mv agent.exe agent/ || true
+
+          # get agent-ui
+          chmod +x ./scripts/github-download-agent-ui.sh
+          ./scripts/github-download-agent-ui.sh
+          mv GetAppAgent* agent/
+          mv openapi.json agent/ || true
+          mv agent.exe agent/ || true
+          zip -r getapp-agent-$RELEASE_TAG.zip agent
+
+      - name: Upload zipped files
+        uses: actions/upload-artifact@v3
+        with:
+          name: agent
+          path: getapp-agent-${{ needs.calculate_new_tag.outputs.tag }}.zip
   
   zip_images_and_chart_and_upload_to_azure:
     needs:
       - get_all_microservices_tags
       - calculate_new_tag
       - create_files_with_updated_env
+      - get_agent_and_agent_ui
     runs-on: ubuntu-latest
 
     steps:
@@ -232,13 +274,18 @@ jobs: ##
         with:
           name: getapp-chart
 
+      - name: Download agent
+        uses: actions/download-artifact@v3
+        with:
+          name: agent
+  
       - name: zip chart and images to one file
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
         run: |
           pwd
           ls -la
-          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
+          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip getapp-agent-$RELEASE_TAG.zip
         
                       
       - name: Upload file to Azure Storage
@@ -289,7 +336,7 @@ jobs: ##
             Click to download.
 
             ### Content of the zip file
-            The zip file contains another 2 zip files.
+            The zip file contains another 3 zip files.
             one contains the Helm chart and docker-compose files necessary for deploying on VM or kubernetes. 
             The other contains the Docker image files them self.
             Use the 1-click installation script to deploy the system.
