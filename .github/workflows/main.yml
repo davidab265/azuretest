@@ -162,7 +162,6 @@ jobs:
           cat helm-chart/values.yml
           
           # get agent
-          cd agent
           rm -f agent/* || true
           chmod +x ./scripts/github-download-agent-ui.sh
           ./scripts/github-download-agent-ui.sh
