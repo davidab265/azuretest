@@ -118,6 +118,7 @@ jobs:
           THIS_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT_ACCESS_TOKEN: ${{ secrets.PAT_ACCESS_TOKEN }}
         run: |
           #!/bin/bash
           set -x
@@ -136,40 +137,44 @@ jobs:
 
           cat stuff/getapp-release-info.txt > readme.md
 
-          chmod +x test-existens-in-harbor.sh
-          ./test-existens-in-harbor.sh
+          chmod +x scripts/test-existens-in-harbor.sh
+          ./scripts/test-existens-in-harbor.sh
 
           # chart change
-          sed -E -i "s,api1":" .*,api":" ${API_TAG},g" integration-chart/values.yml
-          sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" integration-chart/values.yml
-          sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" integration-chart/values.yml
-          sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" integration-chart/values.yml
-          sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" integration-chart/values.yml
-          sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGEMENT_TAG},g" integration-chart/values.yml
-          sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" integration-chart/values.yml
-          sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" integration-chart/values.yml
-          sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" integration-chart/values.yml
-          sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" integration-chart/values.yml
-          sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" integration-chart/values.yml
+          sed -E -i "s,api1":" .*,api":" ${API_TAG},g" helm-chart/values.yml
+          sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" helm-chart/values.yml
+          sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" helm-chart/values.yml
+          sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" helm-chart/values.yml
+          sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" helm-chart/values.yml
+          sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGEMENT_TAG},g" helm-chart/values.yml
+          sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" helm-chart/values.yml
+          sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" helm-chart/values.yml
+          sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" helm-chart/values.yml
+          sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" helm-chart/values.yml
+          sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" helm-chart/values.yml
 
           # getapp and getmap ##
-          sed -E -i "s,configmap":" .*,configmap":" ${NAMESPACE},g" integration-chart/values.yml
-          sed -E -i "s,routePrefix":" .*,routePrefix":" ${NAMESPACE},g" integration-chart/values.yml
-          sed -E -i "s,dbName":" .*,dbName":" ${NAMESPACE},g" integration-chart/values.yml
-          sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" integration-chart/values.yml
-          sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" integration-chart/values.yml
-          cat integration-chart/values.yml
+          sed -E -i "s,configmap":" .*,configmap":" ${NAMESPACE},g" helm-chart/values.yml
+          sed -E -i "s,routePrefix":" .*,routePrefix":" ${NAMESPACE},g" helm-chart/values.yml
+          sed -E -i "s,dbName":" .*,dbName":" ${NAMESPACE},g" helm-chart/values.yml
+          sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" helm-chart/values.yml
+          sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
+          cat helm-chart/values.yml
+          
+          # get agent
+          cd agent
+          rm -f * || true
+          chmod +x ./../scripts/github-download-agent-ui.sh
+          ./../scripts/github-download-agent-ui.sh
+          chmod +x ./../scripts/github-download-agent.sh
+          ./../scripts/github-download-agent-ui.sh
+          cd ..
+          
 
           # git push
           git config user.email "david@linnovate.net"
           git config user.name "ci-bot"
           echo test >> stuff/nothing
-          rm -f GetAppAgent* || true
-          rm agent.exe || true
-
-          # chmod +x ./stuff/pull-github-artifacts.sh
-          # ./stuff/pull-github-artifacts.sh          # chmod +x ./stuff/pull-github-artifacts.sh
-
 
           git add .
           git tag $RELEASE_TAG || true
@@ -193,7 +198,7 @@ jobs:
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
 
   
-  zip_images:
+  zip_images_and_chart_and_upload_to_azure:
     needs:
       - get_all_microservices_tags
       - calculate_new_tag
@@ -209,28 +214,9 @@ jobs:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
         run: |
-          chmod +x getapp-images-to-tar.sh
-          ./getapp-images-to-tar.sh
+          chmod +x scripts/getapp-images-to-tar.sh
+          ./scripts/getapp-images-to-tar.sh
           mv *.zip getapp-images-$RELEASE_TAG.zip
-
-      - name: Upload zipped files
-        uses: actions/upload-artifact@v3
-        with:
-          name: getapp-images
-          path: getapp-images-${{ needs.calculate_new_tag.outputs.tag }}.zip
-
-  zip_images_and_chart:
-    needs:
-      - calculate_new_tag
-      - create_files_with_updated_env
-      - zip_images
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download getapp-images
-        uses: actions/download-artifact@v3
-        with:
-          name: getapp-images
 
       - name: Download getapp-chart
         uses: actions/download-artifact@v3
@@ -240,31 +226,12 @@ jobs:
       - name: zip chart and images to one file
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-
         run: |
           pwd
           ls -la
           zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip
-
-      - name: Upload zipped files
-        uses: actions/upload-artifact@v3
-        with:
-          name: getapp-images-and-chart
-          path: getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip
         
-            
-  upload_to_azure:
-    runs-on: ubuntu-latest
-    needs: 
-      - create_files_with_updated_env
-      - zip_images_and_chart
-      - calculate_new_tag
-    steps:
-      - name: Download zipped files
-        uses: actions/download-artifact@v3
-        with:
-          name: getapp-images-and-chart
-          
+                      
       - name: Upload file to Azure Storage
         uses: azure/CLI@v1
         env:
@@ -290,9 +257,9 @@ jobs:
     permissions:
       contents: write
     needs: 
-      - upload_to_azure
       - calculate_new_tag
       - create_files_with_updated_env
+      -  zip_images_and_chart_and_upload_to_azure
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -312,7 +279,7 @@ jobs:
             [Helm & Docker-compose & Docker images](https://getapprelease.blob.core.windows.net/getapp/getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip)
             Click to download.
 
-            # Content of the zip file
+            ### Content of the zip file
             The zip file contains another 2 zip files.
             one contains the Helm chart and docker-compose files necessary for deploying on VM or kubernetes. 
             The other contains the Docker image files them self.
