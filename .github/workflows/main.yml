@@ -118,7 +118,7 @@ jobs:
           THIS_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PAT_ACCESS_TOKEN: ${{ secrets.PAT_ACCESS_TOKEN }}
+          PAT_ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           #!/bin/bash
           set -x
