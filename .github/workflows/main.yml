@@ -173,7 +173,7 @@ jobs:
           mv agent.exe agent/ || true
 
           # get agent-ui
-          chmod +x ./scripts/github-download-agent.sh
+          chmod +x ./scripts/github-download-agent-ui.sh
           ./scripts/github-download-agent-ui.sh
           mv GetAppAgent* agent/
           mv openapi.json agent/ || true
