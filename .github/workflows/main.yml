@@ -5,7 +5,7 @@ on:
     branches:
       - main
 
-jobs: #
+jobs: ##
   calculate_new_tag:
     runs-on: ubuntu-latest
     outputs:
