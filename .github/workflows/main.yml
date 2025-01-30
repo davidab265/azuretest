@@ -166,6 +166,8 @@ jobs:
           # get agent
           chmod +x ./scripts/github-download-agent.sh
           ./scripts/github-download-agent.sh
+          pwd
+          ls
           mv GetAppAgent* agent/
           mv openapi.json agent/ || true
           mv agent.exe agent/ || true
