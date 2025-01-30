@@ -26,7 +26,7 @@ while IFS= read -r line; do
     curl -L -H "Authorization: token $GITHUB_TOKEN" \
          -H "Accept: application/octet-stream" \
          "https://api.github.com/repos/${owner}/${repo}/releases/assets/${asset_id}" \
-         --output "${asset_name}"
+         --output agent/"${asset_name}"
          
 done < <(echo "$assets_info" | jq -r '.assets[] | "\(.id),\(.name)"')
 

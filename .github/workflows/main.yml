@@ -163,12 +163,12 @@ jobs:
           
           # get agent
           cd agent
-          rm -f * || true
-          chmod +x ./../scripts/github-download-agent-ui.sh
-          ./../scripts/github-download-agent-ui.sh
-          chmod +x ./../scripts/github-download-agent.sh
-          ./../scripts/github-download-agent-ui.sh
-          cd ..
+          rm -f agent/* || true
+          chmod +x ./scripts/github-download-agent-ui.sh
+          ./scripts/github-download-agent-ui.sh
+          chmod +x ./scripts/github-download-agent.sh
+          ./scripts/github-download-agent-ui.sh
+          
           
 
           # git push
