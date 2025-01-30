@@ -82,7 +82,7 @@ jobs: ##
           cat .env
           cp .env env-file
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: env-file
           path: env-file
@@ -104,7 +104,7 @@ jobs: ##
           fetch-depth: 0 # Important for getting all tags and history
   
       - name: Download .env file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: env-file
         
@@ -202,7 +202,7 @@ jobs: ##
         shell: bash
 
       - name: Upload zipped files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: getapp-chart
           path: getapp-chart-${{ needs.calculate_new_tag.outputs.tag }}.zip
@@ -244,7 +244,7 @@ jobs: ##
           zip -r getapp-agent-$RELEASE_TAG.zip agent
 
       - name: Upload zipped files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: agent
           path: getapp-agent-${{ needs.calculate_new_tag.outputs.tag }}.zip
@@ -271,12 +271,12 @@ jobs: ##
           mv *.zip getapp-images-$RELEASE_TAG.zip
 
       - name: Download getapp-chart
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: getapp-chart
 
       - name: Download agent
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: agent
   
