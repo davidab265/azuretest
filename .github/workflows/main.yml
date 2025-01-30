@@ -161,13 +161,21 @@ jobs:
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
           cat helm-chart/values.yml
           
-          # get agent
           rm -f agent/* || true
-          chmod +x ./scripts/github-download-agent-ui.sh
-          ./scripts/github-download-agent-ui.sh
+          
+          # get agent
+          chmod +x ./scripts/github-download-agent.sh
+          ./scripts/github-download-agent.sh
+          mv GetAppAgent* agent/
+          mv openapi.json agent/ || true
+          mv agent.exe agent/ || true
+
+          # get agent-ui
           chmod +x ./scripts/github-download-agent.sh
           ./scripts/github-download-agent-ui.sh
-          
+          mv GetAppAgent* agent/
+          mv openapi.json agent/ || true
+          mv agent.exe agent/ || true
           
 
           # git push
