@@ -274,8 +274,8 @@ jobs: ##
           # cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
           oc create namespace $TEST_NAMESPACE --dry-run=client -o yaml | oc apply -f -
           
-          # Update version in Chart.yaml
-          sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
+          # # Update version in Chart.yaml
+          # sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
           
           # Deploy using Helm
           helm upgrade --install getapp-test ./helm-chart \
