@@ -268,7 +268,6 @@ jobs: ##
           echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
           cat kubeconfig_base64.txt | base64 -d > kubeconfig.yml # Decode it to kubeconfig.yml
           cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
-          kubectl config view --kubeconfig=kubeconfig.yml
           kubectl create namespace $TEST_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
           
           # Update version in Chart.yaml
