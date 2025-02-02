@@ -261,18 +261,17 @@ jobs: ##
 
       - name: Set up oc
         run: |
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig.yml
-          oc login --kubeconfig=kubeconfig.yml
+          oc login --token="${{ secrets.K8S_TOKEN }}" --server="${{ secrets.K8S_URL }}" --insecure-skip-tls-verify=true -n default
 
       - name: Deploy to test namespace ###
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           TEST_NAMESPACE: getapp-test
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+          # kubeconfig: ${{ secrets.KUBE_CONFIG }}
         run: |
-          echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
-          cat kubeconfig_base64.txt | base64 -d > kubeconfig.yml # Decode it to kubeconfig.yml
-          cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
+          # echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
+          # cat kubeconfig_base64.txt | base64 -d > kubeconfig.yml # Decode it to kubeconfig.yml
+          # cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
           oc create namespace $TEST_NAMESPACE --dry-run=client -o yaml | oc apply -f -
           
           # Update version in Chart.yaml
