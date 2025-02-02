@@ -5,7 +5,7 @@ getapp-api:
 # values from the "variables" section in gilab_ci.yml in this repository
 #--------------------------------------------------------------------------------
 
-  replicaCount: 
+  replicaCount: 1
   configmap: 
   routePrefix: 
   routeMainlUrl: apps.sr.eastus.aroapp.io

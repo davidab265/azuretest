@@ -119,7 +119,8 @@ jobs: ##
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PAT_ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
-          #NAMESPACE: "getapp-dev"
+          NAMESPACE: "getapp-test"
+          replicaCount: "1"
         run: |
           #!/bin/bash
           set -x
@@ -142,7 +143,7 @@ jobs: ##
           ./scripts/test-existens-in-harbor.sh
 
           # chart change
-          sed -E -i "s,api1":" .*,api":" ${API_TAG},g" helm-chart/values.yml
+          sed -E -i "s,api":" .*,api":" ${API_TAG},g" helm-chart/values.yml
           sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" helm-chart/values.yml
           sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" helm-chart/values.yml
           sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" helm-chart/values.yml
