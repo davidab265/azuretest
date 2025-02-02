@@ -244,7 +244,12 @@ jobs: ##
     name: Deploy and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main        
+          fetch-depth: 0 # Important for getting all tags and history
       
       - name: Install OpenShift CLI
         run: |
