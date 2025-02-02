@@ -265,6 +265,7 @@ jobs: ##
           TEST_NAMESPACE: getapp-test
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
         run: |
+          echo $kubeconfig
           cat $kubeconfig | base64 -d > kubeconfig.yml
           cat kubeconfig.yml
           # Create test namespace if it doesn't exist
