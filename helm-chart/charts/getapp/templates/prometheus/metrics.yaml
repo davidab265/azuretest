@@ -1,0 +1,69 @@
+# First, create a ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: metrics-server-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "nodes", "nodes/stats", "namespaces"]
+  verbs: ["get", "list", "watch"]
+---
+# Create a RoleBinding (notice this is not ClusterRoleBinding)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: metrics-server-binding
+  namespace: chart-test  # Replace with your namespace
+subjects:
+- kind: ServiceAccount
+  name: getapp-run-as-root
+  namespace: chart-test  # Replace with your namespace
+roleRef:
+  kind: ClusterRole
+  name: metrics-server-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Modified Metrics Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-server
+  namespace: chart-test  # Replace with your namespace
+  labels:
+    k8s-app: metrics-server
+spec:
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  template:
+    metadata:
+      name: metrics-server
+      labels:
+        k8s-app: metrics-server
+    spec:
+      serviceAccountName: getapp-run-as-root
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+      containers:
+        - name: metrics-server
+          image: k8s.gcr.io/metrics-server/metrics-server:v0.6.4
+          imagePullPolicy: IfNotPresent
+          args:
+            - --cert-dir=/tmp
+            - --secure-port=4443
+            - --kubelet-insecure-tls
+            - --kubelet-preferred-address-types=InternalIP
+            - --metric-resolution=15s
+            #- --namespace=chart-test  # Add this line to restrict to namespace
+          ports:
+            - name: main-port
+              containerPort: 4443
+              protocol: TCP
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp

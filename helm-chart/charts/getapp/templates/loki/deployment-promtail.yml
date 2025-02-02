@@ -1,0 +1,41 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: promtail
+#   labels:
+#     app: promtail
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: promtail
+#   template:
+#     metadata:
+#       labels:
+#         app: promtail
+#     spec:
+#       serviceAccountName: getapp-run-as-root
+#       containers:
+#       - name: promtail
+#         image: grafana/promtail:2.9.2
+#         args:
+#           - -config.file=/etc/promtail/promtail.yaml
+#         volumeMounts:
+#           - name: config
+#             mountPath: /etc/promtail
+#           - name: logs
+#             mountPath: /var/log
+#             readOnly: true
+#         resources:
+#           requests:
+#             cpu: 100m
+#             memory: 128Mi
+#           limits:
+#             cpu: 200m
+#             memory: 256Mi
+#       volumes:
+#         - name: config
+#           configMap:
+#             name: promtail-config
+#         - name: logs
+#           emptyDir: {}

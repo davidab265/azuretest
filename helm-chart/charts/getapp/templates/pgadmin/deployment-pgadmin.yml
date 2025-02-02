@@ -1,0 +1,32 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: pgadmin
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: pgadmin
+#   template:
+#     metadata:
+#       labels:
+#         app: pgadmin
+#     spec:
+#       containers:
+#       - envFrom:
+#         - configMapRef:
+#             name: pgadmin-config
+#         imagePullPolicy: {{ .Values.image.pullPolicy }}
+#         image: dpage/pgadmin4
+#         imagePullPolicy: Always
+#         name: pgadmin
+#         ports:
+#         - containerPort: 80
+#           name: http1
+#           protocol: TCP
+#         resources: {}
+#         securityContext:
+#           runAsUser: 0
+#       securityContext: {}
+#       serviceAccount: getapp-run-as-root
+#       serviceAccountName: getapp-run-as-root

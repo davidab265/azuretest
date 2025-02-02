@@ -1,35 +1,99 @@
 #!/bin/bash
 
-# Define variables
-ZIP_FILE="<zip_file_name.zip>"
-REPOSITORY="your.docker.repository.com" #basename of the repository
-DOCKER_USER="your_docker_username" # docker, harbor or quay... it dos't mater
-DOCKER_PASSWORD="your_docker_password"
+set -e  # Exit on error
 
-# Unzip the file
-unzip "$ZIP_FILE" -d getapp-images
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-# Iterate over each tar file
-for TAR_FILE in images/*.tar; do
-    # Load the image from the tar file
-    docker load -i "$TAR_FILE"
+# Function to print colored output
+log() {
+    local color=$1
+    shift
+    echo -e "${color}$@${NC}"
+}
 
-    # Get the image ID
-    IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
+# Use variables from install.sh
+if [ -z "$ZIP_FILE" ]; then
+    log $RED "Error: ZIP_FILE is not set"
+    exit 1
+fi
 
-    # Tag the image
-    docker tag "$IMAGE_ID" "$REPOSITORY/$(basename "$TAR_FILE" .tar)"
+REPOSITORY=$REGISTRY_URL
+DOCKER_USER=$REGISTRY_USER
+DOCKER_PASSWORD=$REGISTRY_PASSWORD
 
-    # Log in to Docker Hub
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin "$REPOSITORY"
+# Validate required variables
+if [ -z "$REPOSITORY" ] || [ -z "$DOCKER_USER" ] || [ -z "$DOCKER_PASSWORD" ] || [ -z "$IMAGE_PREFIX" ]; then
+    log $RED "Error: REGISTRY_URL, REGISTRY_USER, REGISTRY_PASSWORD, and IMAGE_PREFIX must be set"
+    exit 1
+fi
 
-    # Push the image to the Docker repository
-    docker push "$REPOSITORY/$(basename "$TAR_FILE" .tar)"
+# Extract date from ZIP filename
+DATE=$(echo "$ZIP_FILE" | grep -o "[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}")
+if [ -z "$DATE" ]; then
+    log $RED "Error: Could not extract date from ZIP_FILE name. Expected format: getapp-DD-MM-YY.zip"
+    exit 1
+fi
 
-    # Clean up
-    docker rmi "$IMAGE_ID"
-    docker rmi "$REPOSITORY/$(basename "$TAR_FILE" .tar)"
+EXTRACT_DIR="getapp-$DATE"
+
+# Unzip the file if not already unzipped
+if [ ! -d "$EXTRACT_DIR" ]; then
+    log $YELLOW "Extracting $ZIP_FILE..."
+    if ! unzip "$ZIP_FILE"; then
+        log $RED "Error: Failed to unzip $ZIP_FILE"
+        exit 1
+    fi
+fi
+
+# Login to docker registry
+log $YELLOW "Logging into docker registry $REPOSITORY..."
+if ! echo "$DOCKER_PASSWORD" | docker login $REPOSITORY -u $DOCKER_USER --password-stdin; then
+    log $RED "Error: Failed to login to docker registry"
+    rm -rf "$EXTRACT_DIR"
+    exit 1
+fi
+
+log $YELLOW "Using image prefix: $IMAGE_PREFIX"
+
+# Load and push each tar file
+for tar_file in $EXTRACT_DIR/*.tar; do
+    log $YELLOW "Loading image from $tar_file..."
+    if ! docker load -i "$tar_file"; then
+        log $RED "Error: Failed to load image from $tar_file"
+        continue
+    fi
+    
+    # Get the image name from the tar filename (reverse the tr / _ transformation)
+    base_image_name=$(basename "$tar_file" .tar | tr _ /)
+    # Extract the part after getapp-dev/ (or any other prefix)
+    image_suffix=$(echo "$base_image_name" | sed "s|^[^/]*/||")
+    # Construct new image name with the desired prefix
+    image_name="$IMAGE_PREFIX/$image_suffix"
+    
+    # Tag and push the image
+    log $YELLOW "Tagging and pushing $image_name to $REPOSITORY..."
+    if ! docker tag "$base_image_name" "$REPOSITORY/$image_name"; then
+        log $RED "Error: Failed to tag $image_name"
+        continue
+    fi
+    
+    if ! docker push "$REPOSITORY/$image_name"; then
+        log $RED "Error: Failed to push $REPOSITORY/$image_name"
+        continue
+    fi
+    
+    # Clean up docker images after successful push
+    log $YELLOW "Cleaning up docker images..."
+    docker rmi "$base_image_name" "$REPOSITORY/$image_name" || true
+    log $GREEN "Successfully processed $image_name"
 done
 
-# Clean up
-rm -rf getapp-images
+# Cleanup extracted files
+log $YELLOW "Cleaning up..."
+rm -rf "$EXTRACT_DIR"
+
+log $GREEN "All images have been processed!"

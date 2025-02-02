@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uptimekuma-init-script
+data:
+  setup-uptime-kuma-db.js: |
+    const sqlite3 = require('sqlite3').verbose();
+
+    const dbPath = './data/kuma.db'; // Default database path for Uptime Kuma
+    const endpoints = [
+      { name: 'Google', url: 'https://www.google.com' },
+      { name: 'GitHub', url: 'https://www.github.com' },
+      { name: 'Twitter', url: 'https://www.twitter.com' },
+      { name: 'Facebook', url: 'https://www.facebook.com' },
+      { name: 'Amazon', url: 'https://www.amazon.com' },
+      { name: 'Stack Overflow', url: 'https://stackoverflow.com' },
+    ];
+
+    const db = new sqlite3.Database(dbPath);
+
+    db.serialize(() => {
+      db.get("SELECT COUNT(*) AS count FROM monitor", (err, row) => {
+        if (err) {
+          console.error("Database error:", err.message);
+          return;
+        }
+
+        if (row.count === 0) {
+          console.log("Database is empty. Adding endpoints...");
+
+          db.run(`
+            CREATE TABLE IF NOT EXISTS monitor (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              type TEXT NOT NULL DEFAULT 'http',
+              url TEXT NOT NULL,
+              method TEXT DEFAULT 'GET',
+              createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+
+          const stmt = db.prepare(`
+            INSERT INTO monitor (name, url, type, method)
+            VALUES (?, ?, 'http', 'GET')
+          `);
+
+          endpoints.forEach(({ name, url }) => {
+            stmt.run(name, url);
+          });
+
+          stmt.finalize();
+        } else {
+          console.log("Database is not empty. Skipping initialization.");
+        }
+      });
+    });
+
+    db.close();

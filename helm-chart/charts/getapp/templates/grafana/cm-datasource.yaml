@@ -1,0 +1,23 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: datasources
+  labels:
+    getapp: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://chart-shay-prometheus-server.chart-shay.svc.cluster.local
+        access: proxy
+        isDefault: true
+        editable: true
+
+      - name: Loki
+        type: loki
+        url: http://loki-headless.chart-shay.svc.cluster.local:3100
+        access: proxy
+        editable: true

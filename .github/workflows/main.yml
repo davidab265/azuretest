@@ -119,6 +119,7 @@ jobs: ##
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PAT_ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
+          #NAMESPACE: "getapp-dev"
         run: |
           #!/bin/bash
           set -x
@@ -160,26 +161,11 @@ jobs: ##
           sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" helm-chart/values.yml
           sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
           cat helm-chart/values.yml
-          
-          # test
-          # rm -fr agent || true
-          # mkdir agent || true
-          # # get agent
-          # chmod +x ./scripts/github-download-agent.sh
-          # ./scripts/github-download-agent.sh
-          # pwd
-          # ls
-          # mv GetAppAgent* agent/
-          # mv openapi.json agent/ || true
-          # mv agent.exe agent/ || true
 
-          # # get agent-ui
-          # chmod +x ./scripts/github-download-agent-ui.sh
-          # ./scripts/github-download-agent-ui.sh
-          # mv GetAppAgent* agent/
-          # mv openapi.json agent/ || true
-          # mv agent.exe agent/ || true
-          
+          # Copy installation scripts to root
+          cp scripts/install.sh ./install.sh
+          cp scripts/load-images.sh ./load-images.sh
+          chmod +x install.sh load-images.sh
 
           # git push
           git config user.email "david@linnovate.net"
@@ -198,7 +184,8 @@ jobs: ##
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
         run: |
-          zip -r getapp-chart-$RELEASE_TAG.zip . -x "*.git*"
+          # Create chart zip with installation scripts at root level
+          zip -r getapp-chart-$RELEASE_TAG.zip helm-chart docker-compose scripts/install.sh scripts/load-images.sh readme.md how-to-use-this-repo.md -x "*.git*"
         shell: bash
 
       - name: Upload zipped files
@@ -248,7 +235,89 @@ jobs: ##
         with:
           name: agent
           path: getapp-agent-${{ needs.calculate_new_tag.outputs.tag }}.zip
-  
+
+
+  deploy_and_test:
+    needs: 
+      - create_files_with_updated_env
+      - get_agent_and_agent_ui
+    name: Deploy and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install OpenShift CLI
+        run: |
+          # Download and install oc CLI
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar xvzf openshift-client-linux.tar.gz
+          sudo mv oc /usr/local/bin/
+          sudo mv kubectl /usr/local/bin/
+          
+      - name: Set up kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+          
+      - name: Deploy to test namespace
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          TEST_NAMESPACE: getapp-test
+        run: |
+          # Create test namespace if it doesn't exist
+          kubectl create namespace $TEST_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Update version in Chart.yaml
+          sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
+          
+          # Deploy using Helm
+          helm upgrade --install getapp-test ./helm-chart \
+            --namespace $TEST_NAMESPACE \
+            --set namespace.openshiftProjectName=$TEST_NAMESPACE \
+            --wait --timeout 5m
+          
+          # Wait for deployment to be ready
+          kubectl wait --for=condition=ready pod -l app=getapp --timeout=300s -n $TEST_NAMESPACE
+
+      - name: Run tests
+        env:
+          TEST_NAMESPACE: getapp-test
+        run: |
+          # Wait for route to be ready
+          kubectl wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=300s
+          
+          # Get route URL (using oc command for OpenShift route)
+          ROUTE_URL=$(oc get route -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
+          
+          # Basic health check using the route
+          curl -f http://$ROUTE_URL/health || exit 1
+        
+      - name: Deploy to production namespace
+        if: success()
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          PROD_NAMESPACE: getapp-prod
+        run: |
+          # Create production namespace if it doesn't exist
+          kubectl create namespace $PROD_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Deploy using Helm
+          helm upgrade --install getapp-prod ./helm-chart \
+            --namespace $PROD_NAMESPACE \
+            --set namespace.openshiftProjectName=$PROD_NAMESPACE \
+            --wait --timeout 5m
+          
+          # Wait for deployment to be ready
+          kubectl wait --for=condition=ready pod -l app=getapp --timeout=300s -n $PROD_NAMESPACE
+
+      - name: Cleanup test deployment
+        if: always()
+        env:
+          TEST_NAMESPACE: getapp-test
+        run: |
+          # Clean up test namespace
+          helm uninstall getapp-test -n $TEST_NAMESPACE || true
+        
   zip_images_and_chart_and_upload_to_azure:
     needs:
       - get_all_microservices_tags
@@ -286,7 +355,11 @@ jobs: ##
         run: |
           pwd
           ls -la
-          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip getapp-agent-$RELEASE_TAG.zip
+          # First copy the installation files to current directory
+          cp scripts/install.sh scripts/load-images.sh how-to-use-this-repo.md ./
+          # Create the full release zip including all components and installation files
+          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip getapp-agent-$RELEASE_TAG.zip install.sh load-images.sh how-to-use-this-repo.md
+        shell: bash
         
                       
       - name: Upload file to Azure Storage
@@ -337,10 +410,49 @@ jobs: ##
             Click to download.
 
             ### Content of the zip file
-            The zip file contains another 3 zip files.
-            one contains the Helm chart and docker-compose files necessary for deploying on VM or kubernetes. 
-            The other contains the Docker image files them self.
-            Use the 1-click installation script to deploy the system.
+            The zip file contains:
+            1. `getapp-chart-*.zip` - Helm chart, Docker Compose files, and installation scripts
+            2. `getapp-images-*.zip` - Docker image files
+            3. `getapp-agent-*.zip` - GetApp agent files
+            4. Installation files at root level:
+               - `install.sh`
+               - `load-images.sh`
+               - `how-to-use-this-repo.md`
+
+            ### File Structure
+            ```
+            getapp-full-release-*.zip
+            ├── install.sh
+            ├── load-images.sh
+            ├── how-to-use-this-repo.md
+            ├── getapp-chart-*.zip
+            │   ├── helm-chart/
+            │   │   ├── Chart.yaml
+            │   │   ├── values.yaml
+            │   │   └── templates/
+            │   ├── docker-compose/
+            │   ├── scripts/
+            │   │   ├── install.sh
+            │   │   └── load-images.sh
+            │   ├── readme.md
+            │   └── how-to-use-this-repo.md
+            ├── getapp-images-*.zip
+            │   └── images/
+            │       └── *.tar
+            └── getapp-agent-*.zip
+                ├── agent/
+                └── agent-ui/
+            ```
+
+            ### Quick Installation
+            After extracting the release package:
+            ```bash
+            chmod +x install.sh
+            ./install.sh
+            ```
+            Follow the prompts to configure your registry and deployment settings.
+
+            For detailed instructions, see the included `how-to-use-this-repo.md` file.
 
           draft: false
           prerelease: false

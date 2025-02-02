@@ -1,0 +1,139 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: grafana
+  labels:
+    getapp: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      getapp: grafana
+  template:
+    metadata:
+      labels:
+        getapp: grafana
+    spec:
+      restartPolicy: Always
+      serviceAccountName: grafana
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+        - resources: {}
+          terminationMessagePath: /dev/termination-log
+          name: grafana-sc-datasources
+          env:
+            - name: METHOD
+              value: WATCH
+            - name: LABEL
+            - name: FOLDER
+              value: /etc/grafana/provisioning/datasources
+            - name: RESOURCE
+              value: both
+            - name: REQ_USERNAME
+              value: admin
+            - name: REQ_PASSWORD
+              value: test12!
+            - name: REQ_URL
+              value: 'http://localhost:3000/api/admin/provisioning/datasources/reload'
+            - name: REQ_METHOD
+              value: POST
+            - name: GF_DATABASE_TYPE
+              value: sqlite3
+            - name: GF_DATABASE_PATH
+              value: /var/lib/grafana/grafana.db
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            # - name: storage
+            #   mountPath: /var/lib/grafana
+            # - name: sc-datasources-volume
+            #   mountPath: /etc/grafana/provisioning/datasources
+          image: 'quay.io/kiwigrid/k8s-sidecar:1.19.2'
+        - resources: {}
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: grafana
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 10
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: grafana
+                  key: admin-user
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana
+                  key: admin-password
+            # - name: GF_SECURITY_ADMIN_USER
+            #   value: admin
+            # - name: GF_SECURITY_ADMIN_PASSWORD
+            #   value: "david@1121"
+            - name: GF_PATHS_DATA
+              value: /var/lib/grafana/
+            - name: GF_PATHS_LOGS
+              value: /var/log/grafana
+            - name: GF_PATHS_PLUGINS
+              value: /var/lib/grafana/plugins
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+          ports:
+            - name: grafana
+              containerPort: 3000
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          # volumeMounts:
+          #   - name: config
+          #     mountPath: /etc/grafana/grafana.ini
+          #     subPath: grafana.ini
+          #   - name: datasources
+          #     mountPath: /etc/grafana/provisioning/datasources
+          #   # - name: storage
+          #   #   mountPath: /var/lib/grafana
+          #   - name: dashboards
+          #     mountPath: /var/lib/grafana/dashboards/default
+          #   - name: config
+          #     mountPath: /etc/grafana/provisioning/dashboards/dashboardproviders.yaml
+          #     subPath: dashboardproviders.yaml
+          terminationMessagePolicy: File
+          image: 'grafana/grafana:10.3.3'
+      automountServiceAccountToken: true
+      serviceAccount: grafana
+      volumes:
+        - name: config
+          configMap:
+            name: grafana
+            defaultMode: 420
+        - name: datasources
+          configMap:
+            name: datasources
+            defaultMode: 420
+        - name: dashboards
+          configMap:
+            name: dashboards
+            defaultMode: 420
+        # - name: storage
+        #   persistentVolumeClaim:
+        #     claimName: grafana
