@@ -259,7 +259,7 @@ jobs: ##
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
           
-      - name: Deploy to test namespace
+      - name: Deploy to test namespace #
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           TEST_NAMESPACE: getapp-test
