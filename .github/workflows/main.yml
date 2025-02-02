@@ -254,11 +254,16 @@ jobs: ##
           sudo mv oc /usr/local/bin/
           sudo mv kubectl /usr/local/bin/
           
-      - name: Set up kubectl
-        uses: azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          
+      # - name: Set up kubectl
+      #   uses: azure/k8s-set-context@v1
+      #   with:
+      #     kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Set up oc
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig.yml
+          oc login --kubeconfig=kubeconfig.yml
+
       - name: Deploy to test namespace ###
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
@@ -268,7 +273,7 @@ jobs: ##
           echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
           cat kubeconfig_base64.txt | base64 -d > kubeconfig.yml # Decode it to kubeconfig.yml
           cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
-          kubectl create namespace $TEST_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+          oc create namespace $TEST_NAMESPACE --dry-run=client -o yaml | oc apply -f -
           
           # Update version in Chart.yaml
           sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
@@ -280,14 +285,14 @@ jobs: ##
             --wait --timeout 5m
           
           # Wait for deployment to be ready
-          kubectl wait --for=condition=ready pod -l app=getapp --timeout=300s -n $TEST_NAMESPACE
+          oc wait --for=condition=ready pod -l app=getapp --timeout=300s -n $TEST_NAMESPACE
 
       - name: Run tests
         env:
           TEST_NAMESPACE: getapp-test
         run: |
           # Wait for route to be ready
-          kubectl wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=300s
+          oc wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=300s
           
           # Get route URL (using oc command for OpenShift route)
           ROUTE_URL=$(oc get route -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
@@ -302,7 +307,7 @@ jobs: ##
           PROD_NAMESPACE: getapp-prod
         run: |
           # Create production namespace if it doesn't exist
-          kubectl create namespace $PROD_NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+          oc create namespace $PROD_NAMESPACE --dry-run=client -o yaml | oc apply -f -
           
           # Deploy using Helm
           helm upgrade --install getapp-prod ./helm-chart \
@@ -311,7 +316,7 @@ jobs: ##
             --wait --timeout 5m
           
           # Wait for deployment to be ready
-          kubectl wait --for=condition=ready pod -l app=getapp --timeout=300s -n $PROD_NAMESPACE
+          oc wait --for=condition=ready pod -l app=getapp --timeout=300s -n $PROD_NAMESPACE
 
       - name: Cleanup test deployment
         if: always()
