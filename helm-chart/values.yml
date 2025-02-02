@@ -5,11 +5,11 @@ getapp-api:
 # values from the "variables" section in gilab_ci.yml in this repository
 #--------------------------------------------------------------------------------
 
-  replicaCount: 1
-  configmap: chart-test
-  routePrefix: chart-test
+  replicaCount: 
+  configmap: 
+  routePrefix: 
   routeMainlUrl: apps.sr.eastus.aroapp.io
-  dbName: chart-test
+  dbName: 
 
 #--------------------------------------------------------------------------------
 #
@@ -18,21 +18,21 @@ getapp-api:
 # https://gitlab.getapp.sh/getapp/Main-version-control/getapp-release-versions/-/blob/master/.gitlab-ci.yml
 #
 #--------------------------------------------------------------------------------
-  gitlabrelease: 1.3.53-develop
+  gitlabrelease: 1.3.26
   repository: harbor.getapp.sh/getapp-dev/
   tag:
     api: 1.3.70-develop
-    delivery: 1.3.54-develop
-    deploy: 1.3.22-develop
-    discovery: 1.3.77-develop
-    offering: 1.3.57-develop
-    projectmanagment: 1.3.22-develop
-    upload: 1.3.25-develop
-    dashboard: 1.2.31-develop
-    getmap: 1.3.48-develop
-    docs: v1-14-10-2024
+    delivery: 1.3.71-develop
+    deploy: 1.3.41-develop
+    discovery: 1.3.92-develop
+    offering: 1.3.69-develop
+    projectmanagment: 1.3.35-develop
+    upload: 1.3.41-develop
+    dashboard: 1.3.8-develop
+    getmap: 1.3.59-develop
+    docs: v1-27-01-2025
   namespace:
-      openshiftProjectName: chart-test
+      openshiftProjectName: 
 
 
 #--------------------------------------------------------------------------------
