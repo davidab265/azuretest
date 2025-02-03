@@ -22,7 +22,7 @@ spec:
       annotations:
         buildID: {{ .Values.buildID | default "" | quote }}
     spec:
-      serviceAccountName: getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       containers:
         - name: getmap-node
           image: "{{ .Values.repository }}getmap-node:{{ .Values.tag.getmap }}"

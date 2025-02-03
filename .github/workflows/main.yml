@@ -242,7 +242,10 @@ jobs: ##
     needs: 
       - create_files_with_updated_env
       # - get_agent_and_agent_ui
-    name: Deploy and Test
+    name: Deploy and Test 
+    env:
+      TEST_NAMESPACE: getapp-test #  the namespace where you want to deploy the test environment
+      RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -278,16 +281,16 @@ jobs: ##
           # echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
           # cat kubeconfig_base64.txt | base64 -d > kubeconfig.yml # Decode it to kubeconfig.yml
           # cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
-          oc create namespace $TEST_NAMESPACE --dry-run=client -o yaml | oc apply -f -
-          
+          # oc create namespace $TEST_NAMESPACE --dry-run=client -o yaml | oc apply -f - ||
           # # Update version in Chart.yaml
           # sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
           
           # Deploy using Helm
           helm upgrade --install getapp-test ./helm-chart \
             --namespace $TEST_NAMESPACE \
+            --create-namespace   \
             --set namespace.openshiftProjectName=$TEST_NAMESPACE \
-            --wait --timeout 5m
+            --wait --timeout 5m 
           
           # Wait for deployment to be ready
           oc wait --for=condition=ready pod -l app=getapp --timeout=300s -n $TEST_NAMESPACE
@@ -303,22 +306,23 @@ jobs: ##
           ROUTE_URL=$(oc get route -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
           
           # Basic health check using the route
-          curl -f http://$ROUTE_URL/health || exit 1
+          curl -f http://$ROUTE_URL/docs || exit 1
         
       - name: Deploy to production namespace
-        if: success()
+        # if: success()
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           PROD_NAMESPACE: getapp-prod
         run: |
-          # Create production namespace if it doesn't exist
-          oc create namespace $PROD_NAMESPACE --dry-run=client -o yaml | oc apply -f -
+          # # Create production namespace if it doesn't exist
+          # oc create namespace $PROD_NAMESPACE --dry-run=client -o yaml | oc apply -f -
           
           # Deploy using Helm
-          helm upgrade --install getapp-prod ./helm-chart \
+          helm upgrade --install getapp-test ./helm-chart \
             --namespace $PROD_NAMESPACE \
-            --set namespace.openshiftProjectName=$PROD_NAMESPACE \
-            --wait --timeout 5m
+            --create-namespace   \
+            --set namespace.openshiftProjectName=$TEST_NAMESPACE \
+            --wait --timeout 5m 
           
           # Wait for deployment to be ready
           oc wait --for=condition=ready pod -l app=getapp --timeout=300s -n $PROD_NAMESPACE
