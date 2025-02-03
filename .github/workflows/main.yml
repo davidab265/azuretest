@@ -379,7 +379,7 @@ jobs: ##
           pwd
           ls -la
           # First copy the installation files to current directory
-          cp scripts/install.sh scripts/load-images.sh how-to-use-this-repo.md ./
+          cp scripts/install.sh scripts/load-images.sh how-to-use-this-repo.md ./ || true
           # Create the full release zip including all components and installation files
           zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip getapp-agent-$RELEASE_TAG.zip install.sh load-images.sh how-to-use-this-repo.md
         shell: bash
