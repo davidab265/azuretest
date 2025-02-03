@@ -11,7 +11,7 @@ spec:
       labels:
         app: prometheus
     spec:
-      serviceAccountName: getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       securityContext:
         fsGroup: 65534  # nobody group
         runAsUser: 65534  # nobody user

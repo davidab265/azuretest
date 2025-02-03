@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metrics-server-role
+  name: {{ .Release.Namespace }}-metrics-server-role
 rules:
 - apiGroups: [""]
   resources: ["pods", "nodes", "nodes/stats", "namespaces"]
@@ -12,23 +12,23 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: metrics-server-binding
-  namespace: chart-test  # Replace with your namespace
+  name: {{ .Release.Namespace }}-metrics-server-binding
+  namespace: {{ .Release.Namespace }}  # Replace with your namespace
 subjects:
 - kind: ServiceAccount
-  name: getapp-run-as-root
-  namespace: chart-test  # Replace with your namespace
+  name: {{ .Release.Namespace }}-run-as-root
+  namespace: {{ .Release.Namespace }}  # Replace with your namespace
 roleRef:
   kind: ClusterRole
-  name: metrics-server-role
+  name: {{ .Release.Namespace }}-metrics-server-role
   apiGroup: rbac.authorization.k8s.io
 ---
 # Modified Metrics Server Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: metrics-server
-  namespace: chart-test  # Replace with your namespace
+  name: {{ .Release.Namespace }}-metrics-server
+  namespace: {{ .Release.Namespace }}  # Replace with your namespace
   labels:
     k8s-app: metrics-server
 spec:
@@ -41,7 +41,7 @@ spec:
       labels:
         k8s-app: metrics-server
     spec:
-      serviceAccountName: getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       volumes:
         - name: tmp-dir
           emptyDir: {}
@@ -55,7 +55,7 @@ spec:
             - --kubelet-insecure-tls
             - --kubelet-preferred-address-types=InternalIP
             - --metric-resolution=15s
-            #- --namespace=chart-test  # Add this line to restrict to namespace
+            #- --namespace={{ .Release.Namespace }}  # Add this line to restrict to namespace
           ports:
             - name: main-port
               containerPort: 4443

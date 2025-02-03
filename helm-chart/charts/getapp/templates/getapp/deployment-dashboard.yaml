@@ -22,7 +22,7 @@
 #       annotations:
 #         buildID: {{ .Values.buildID | default "" | quote }}
 #     spec:
-#       serviceAccountName: getapp-run-as-root
+#       serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
 #       containers:
 #         - name: dashboard
 #           image: "{{ .Values.repository }}dashboard:{{ .Values.tag.dashboard }}"

@@ -1,26 +1,27 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kube-state-metrics
+  name: {{ .Release.Name }}-kube-state-metrics
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: kube-state-metrics
-  namespace: chart-test
+  name: {{ .Release.Name }}-kube-state-metrics
+  namespace: {{ .Release.Namespace }}
+
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: view
 subjects:
   - kind: ServiceAccount
-    name: kube-state-metrics
-    namespace: chart-test
+    name: {{ .Release.Name }}-kube-state-metrics
+    namespace: {{ .Release.Namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
-  name: kube-state-metrics
+  name: {{ .Release.Name }}-kube-state-metrics
 spec:
   replicas: 1
   selector:
@@ -36,15 +37,15 @@ spec:
         name: kube-state-metrics
         args:
         - --resources=pods
-        - '--namespaces=chart-test'
-      serviceAccount: getapp-run-as-root
-      serviceAccountName: getapp-run-as-root
+        - '--namespaces={{ .Release.Namespace }}'
+      serviceAccount: {{ .Release.Name }}-run-as-root
+      serviceAccountName: {{ .Release.Name }}-run-as-root
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: kube-state-metrics
+  name: {{ .Release.Name }}-kube-state-metrics
   namespace: kube-system
   labels:
     app: kube-state-metrics

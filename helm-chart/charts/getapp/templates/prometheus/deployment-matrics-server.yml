@@ -15,7 +15,7 @@
 #       labels:
 #         k8s-app: metrics-server
 #     spec:
-#       serviceAccountName: getapp-run-as-root
+#       serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
 #       volumes:
 #         - name: tmp-dir
 #           emptyDir: {}

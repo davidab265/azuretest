@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: getapp-run-as-root
+  name: {{ .Release.Namespace }}-getapp-run-as-root
   namespace: {{ .Release.Namespace }}
 
 ---
@@ -10,7 +10,7 @@ metadata:
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
-  name: getapp-run-as-root-scc
+  name: {{ .Release.Namespace }}-getapp-run-as-root-scc
 allowPrivilegedContainer: true
 allowHostDirVolumePlugin: false
 allowHostNetwork: false
@@ -33,7 +33,7 @@ groups: []
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: use-getapp-run-as-root-scc
+  name: use-{{ .Release.Namespace }}-getapp-run-as-root-scc
   namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups:
@@ -41,7 +41,7 @@ rules:
   resources:
   - securitycontextconstraints
   resourceNames:
-  - getapp-run-as-root-scc
+  - {{ .Release.Namespace }}-getapp-run-as-root-scc
   verbs:
   - use
 
@@ -50,13 +50,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: getapp-run-as-root-binding
+  name: {{ .Release.Namespace }}-getapp-run-as-root-binding
   namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: use-getapp-run-as-root-scc
+  name: use-{{ .Release.Namespace }}-getapp-run-as-root-scc
 subjects:
 - kind: ServiceAccount
-  name: getapp-run-as-root
+  name: {{ .Release.Namespace }}-getapp-run-as-root
   namespace: {{ .Release.Namespace }}

@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: LOKI_URL
-              value: "http://loki.chart-test.svc.cluster.local:3100/loki/api/v1/push"
+              value: "http://loki.{{ .Release.Namespace }}.svc.cluster.local:3100/loki/api/v1/push"
             - name: INTERVAL
               value: "60"
             - name: CONTAINER_NAMES

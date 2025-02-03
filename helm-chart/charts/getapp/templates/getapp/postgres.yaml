@@ -35,8 +35,8 @@ spec:
       labels:
         app: postgres
     spec:
-      serviceAccountName: getapp-run-as-root
-      serviceAccount: getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
+      serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
       containers:
       - name: postgres
         securityContext:

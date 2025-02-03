@@ -32,4 +32,4 @@
 # subjects:
 #   - kind: ServiceAccount
 #     name: promtail1
-#     namespace: chart-test
+#     namespace: {{ .Release.Namespace }}

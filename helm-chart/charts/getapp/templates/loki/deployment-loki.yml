@@ -14,7 +14,7 @@ spec:
       labels:
         app: loki
     spec:
-      serviceAccountName: getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       containers:
       - name: loki
         imagePullPolicy: {{ .Values.image.pullPolicy }}

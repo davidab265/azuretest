@@ -28,5 +28,5 @@
 #         securityContext:
 #           runAsUser: 0
 #       securityContext: {}
-#       serviceAccount: getapp-run-as-root
-#       serviceAccountName: getapp-run-as-root
+#       serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
+#       serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root

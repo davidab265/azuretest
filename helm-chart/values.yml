@@ -40,7 +40,7 @@ getapp-api:
 #--------------------------------------------------------------------------------
 
   image:
-    repository: harbor.getapp.sh/chart-test/api
+    repository: harbor.getapp.sh/getapp-test/api
     tag: 1.0.68
     pullPolicy: Always #IfNotPresent
 

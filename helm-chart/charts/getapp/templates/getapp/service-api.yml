@@ -10,9 +10,9 @@ metadata:
     heritage: {{ .Release.Service }}
     gitlabrelease: "{{ .Values.gitlabrelease }}"
 spec:
-  type: {{ (.Values.service).type }}
+  type: ClusterIP
   ports:
-    - port: {{ (.Values.service).port }}
+    - port: 3000
       targetPort: 3000
       protocol: TCP
       name: http

@@ -65,7 +65,7 @@ spec:
               protocol: TCP
           imagePullPolicy: IfNotPresent
           image: 'confluentinc/cp-kafka:7.4.1'
-      serviceAccountName: getapp-run-as-root
-      serviceAccount: getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
+      serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
       securityContext: {}
       

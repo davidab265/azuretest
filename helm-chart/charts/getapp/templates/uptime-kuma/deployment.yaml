@@ -46,5 +46,5 @@ spec:
         - name: init-script
           configMap:
             name: uptimekuma-init-script
-      serviceAccount: getapp-run-as-root
-      serviceAccountName: getapp-run-as-root
+      serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root

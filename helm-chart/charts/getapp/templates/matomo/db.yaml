@@ -95,8 +95,8 @@ spec:
       schedulerName: default-scheduler
       securityContext:
         fsGroupChangePolicy: Always
-      serviceAccount: getapp-run-as-root
-      serviceAccountName: getapp-run-as-root
+      serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       volumes:
       - configMap:
           defaultMode: 420

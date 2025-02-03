@@ -56,7 +56,7 @@ roleRef:
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
-  name: grafana-scc
+  name: {{ .Release.Namespace }}-grafana-scc
 allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: false
@@ -92,12 +92,13 @@ volumes:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: grafana-scc-role
+  name: {{ .Release.Name }}-scc-role
+  namespace: {{ .Release.Namespace }}
 rules:
   - apiGroups:
       - security.openshift.io
     resourceNames:
-      - grafana-scc
+      - {{ .Release.Name }}-scc
     resources:
       - securitycontextconstraints
     verbs:
@@ -107,12 +108,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: grafana-scc-rolebinding
+  name: {{ .Release.Name }}-scc-rolebinding
 subjects:
   - kind: ServiceAccount
-    name: grafana
+    name: {{ .Release.Name }}-grafana
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: grafana-scc-role
+  name: {{ .Release.Name }}-scc-role
   apiGroup: rbac.authorization.k8s.io
