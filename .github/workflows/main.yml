@@ -244,7 +244,7 @@ jobs: ##
       # - get_agent_and_agent_ui
     name: Deploy and Test 
     env:
-      TEST_NAMESPACE: getapp-test #  the namespace where you want to deploy the test environment
+      TEST_NAMESPACE: getapp-ci-test #  the namespace where you want to deploy the test environment
       RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
@@ -275,7 +275,7 @@ jobs: ##
       - name: Deploy to test namespace ###
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          TEST_NAMESPACE: getapp-test
+          TEST_NAMESPACE: getapp-ci-test
           # kubeconfig: ${{ secrets.KUBE_CONFIG }}
         run: |
           # echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
@@ -286,7 +286,7 @@ jobs: ##
           # sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
           
           # Deploy using Helm
-          helm upgrade --install getapp-test ./helm-chart \
+          helm upgrade --install $TEST_NAMESPACE ./helm-chart \
             --namespace $TEST_NAMESPACE \
             --create-namespace   \
             --set namespace.openshiftProjectName=$TEST_NAMESPACE \
@@ -297,7 +297,7 @@ jobs: ##
 
       - name: Run tests
         env:
-          TEST_NAMESPACE: getapp-test
+          TEST_NAMESPACE: getapp-ci-test
         run: |
           # Wait for route to be ready
           oc wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=300s
@@ -306,7 +306,7 @@ jobs: ##
           ROUTE_URL=$(oc get route -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
           
           # Basic health check using the route
-          curl -f http://$ROUTE_URL/docs || exit 1
+          curl -f https://$ROUTE_URL/docs || exit 1
         
       - name: Deploy to production namespace
         # if: success()
