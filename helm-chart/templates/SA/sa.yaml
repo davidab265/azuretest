@@ -1,3 +1,4 @@
+{{- if .Values.isOpenShift }}
 # Service Account
 apiVersion: v1
 kind: ServiceAccount
@@ -60,3 +61,5 @@ subjects:
 - kind: ServiceAccount
   name: {{ .Release.Namespace }}-getapp-run-as-root
   namespace: {{ .Release.Namespace }}
+
+{{- end }}
