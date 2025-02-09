@@ -35,13 +35,17 @@ spec:
       labels:
         app: postgres
     spec:
+      {{- if .Values.isOpenShift }}
       serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
+      {{- end }}
       containers:
-      - name: postgres
+      - name: postgres  
+        {{- if .Values.isOpenShift }}
         securityContext:
           runAsUser: 0
           runAsGroup: 0
+        {{- end }}
         resources: {}
         image: "{{ .Values.repository }}postgres:14.1"
         env:

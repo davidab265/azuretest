@@ -22,7 +22,7 @@ spec:
       annotations:
         buildID: {{ .Values.buildID | default "" | quote }}
     spec:
-      {{- if not .Values.isK8S }}
+      {{- if .Values.isOpenShift }}
       serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
       {{- end }}
       containers:
@@ -40,7 +40,7 @@ spec:
           #   periodSeconds: 30
           #   successThreshold: 1
           #   failureThreshold: 2
-          {{- if not .Values.isK8S }}
+          {{- if .Values.isOpenShift }}
           securityContext:
             runAsUser: 0
           {{- end }}
