@@ -258,10 +258,13 @@ jobs: ##
       - name: Set up kubectl
         run: |
           kubectl config set-credentials default-user --token="${{ secrets.K8S_TOKEN }}"
-          kubectl config set-cluster default-cluster --server="${{ secrets.K8S_URL }}" --insecure-skip-tls-verify=true
+          kubectl config set-cluster default-cluster --server="https://${{ secrets.K8S_URL }}:6443" --insecure-skip-tls-verify=true
           kubectl config set-context default-context --cluster=default-cluster --user=default-user --namespace=default
           kubectl config use-context default-context
-  
+          
+          # Test the connection
+          kubectl cluster-info
+
       - name: Deploy to test namespace ###
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
