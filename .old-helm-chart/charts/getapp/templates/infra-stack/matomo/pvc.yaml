@@ -1,0 +1,15 @@
+{{- if (include "infra.enabled" .) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    getapp: matomo
+  name: matomo
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  volumeMode: Filesystem
+{{- end }}

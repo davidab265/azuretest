@@ -1,0 +1,33 @@
+{{- if (include "infra.enabled" .) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-to-loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-to-loki
+  template:
+    metadata:
+      labels:
+        app: k8s-to-loki
+    spec:
+      containers:
+        - name: k8s-to-loki
+          image: harbor.getapp.sh/getapp-dev/log-collecter:1.0.2
+          imagePullPolicy: Always
+          env:
+            - name: LOKI_URL
+              value: "http://loki.{{ .Release.Namespace }}.svc.cluster.local:3100/loki/api/v1/push"
+            - name: INTERVAL
+              value: "60"
+            - name: CONTAINER_NAMES
+              value: "api,delivery,discovery,offering,getmap-node"
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+          resources: {}
+      serviceAccountName: promtail-sa
+      serviceAccount: promtail-sa
+
+{{- end }}

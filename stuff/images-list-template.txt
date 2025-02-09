@@ -8,3 +8,6 @@ harbor.getapp.sh/getapp-dev/upload:${UPLOAD_TAG}
 harbor.getapp.sh/getapp-dev/getmap-node:${GETMAP_TAG}
 harbor.getapp.sh/getapp-dev/dashboard:${DASHBOARD_TAG}
 harbor.getapp.sh/getapp-dev/docs:${DOCS_TAG}
+harbor.getapp.sh/getapp-dev/cp-kafka:7.4.1
+harbor.getapp.sh/getapp-dev/postgres:14.1
+

@@ -244,7 +244,7 @@ jobs: ##
       # - get_agent_and_agent_ui
     name: Deploy and Test 
     env:
-      TEST_NAMESPACE: getapp-ci-test #  the namespace where you want to deploy the test environment
+      TEST_NAMESPACE: getapp-d #  the namespace where you want to deploy the test environment
       RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
@@ -254,15 +254,7 @@ jobs: ##
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: main        
           fetch-depth: 0 # Important for getting all tags and history
-      
-      # - name: Install OpenShift CLI
-      #   run: |
-      #     # Download and install oc CLI
-      #     curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
-      #     tar xvzf openshift-client-linux.tar.gz
-      #     sudo mv oc /usr/local/bin/
-      #     sudo mv kubectl /usr/local/bin/
-          
+                
       - name: Set up kubectl
         run: |
           kubectl config set-credentials default-user --token="${{ secrets.K8S_TOKEN }}"
@@ -270,38 +262,32 @@ jobs: ##
           kubectl config set-context default-context --cluster=default-cluster --user=default-user --namespace=default
           kubectl config use-context default-context
   
-  #     - name: Deploy to test namespace ###
-  #       env:
-  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-  #         TEST_NAMESPACE: getapp-ci-test
-  #         # kubeconfig: ${{ secrets.KUBE_CONFIG }}
-  #       run: |
-  #         # echo $kubeconfig > kubeconfig_base64.txt # Save the Base64 string to a file
-  #         # cat kubeconfig_base64.txt | base64 -d > kubeconfig.yml # Decode it to kubeconfig.yml
-  #         # cat kubeconfig.yml # Display the contents          # Create test namespace if it doesn't exist
-  #         # oc create namespace $TEST_NAMESPACE --dry-run=client -o yaml | oc apply -f - ||
-  #         # # Update version in Chart.yaml
-  #         # sed -i "s/version:.*/version: $RELEASE_TAG/" helm-chart/Chart.yaml
+      - name: Deploy to test namespace ###
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          TEST_NAMESPACE: getapp-d
+          # kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        run: |
           
-  #         # test Deploy using Helm
-  #         helm upgrade --install $TEST_NAMESPACE ./helm-chart \
-  #           --namespace $TEST_NAMESPACE \
-  #           --create-namespace   \
-  #           --set namespace.openshiftProjectName=$TEST_NAMESPACE \
-  #           --dry-run
+          # test Deploy using Helm
+          helm upgrade --install $TEST_NAMESPACE ./helm-chart \
+            --namespace $TEST_NAMESPACE \
+            --create-namespace   \
+            --set namespace.openshiftProjectName=$TEST_NAMESPACE \
+            --dry-run
 
-  #         # Deploy using Helm
-  #         helm upgrade --install $TEST_NAMESPACE ./helm-chart \
-  #           --namespace $TEST_NAMESPACE \
-  #           --create-namespace   \
-  #           --set namespace.openshiftProjectName=$TEST_NAMESPACE \
+          # Deploy using Helm
+          helm upgrade --install $TEST_NAMESPACE ./helm-chart \
+            --namespace $TEST_NAMESPACE \
+            --create-namespace   \
+            --set namespace.openshiftProjectName=$TEST_NAMESPACE \
 
   #         # Wait for deployment to be ready
   #         oc wait --for=condition=ready pod -l app=getapp --timeout=120s -n $TEST_NAMESPACE
 
   #     - name: Run tests
   #       env:
-  #         TEST_NAMESPACE: getapp-ci-test
+  #         TEST_NAMESPACE: getapp-d
   #       run: |
   #         # Wait for route to be ready
   #         oc wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=120s

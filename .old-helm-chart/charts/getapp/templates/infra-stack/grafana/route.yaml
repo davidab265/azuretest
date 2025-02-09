@@ -1,0 +1,23 @@
+{{- if (include "infra.enabled" .) }}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: grafana
+  labels:
+    getapp: api
+    chart: {{ template "getapp-api.chart" . }}
+    draft: {{ .Values.draft | default "draft-app" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    gitlabrelease: "{{ .Values.gitlabrelease }}"
+spec:
+  host: grafana-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  to:
+    kind: Service
+    name: grafana
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+{{- end }}

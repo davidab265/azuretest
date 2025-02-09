@@ -1,0 +1,20 @@
+{{- if (include "infra.enabled" .) }}
+
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: pgadmin
+  labels:
+    getapp: pgadmin
+    gitlabrelease: "{{ .Values.gitlabrelease }}"
+spec:
+  host: pgadmin-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  to:
+    kind: Service
+    name: pgadmin
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+{{- end }}

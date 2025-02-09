@@ -1,0 +1,15 @@
+{{- if (include "infra.enabled" .) }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: kafka-ui
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+    name: http
+  selector:
+    app: kafka-ui
+  type: ClusterIP
+{{- end }}

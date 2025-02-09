@@ -1,0 +1,12 @@
+{{- if (include "infra.enabled" .) }}apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loki-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: managed-csi
+{{- end }}

@@ -1,0 +1,137 @@
+{{- if (include "infra.enabled" .) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uptimekuma-13
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uptime-kuma
+  template:
+    metadata:
+      labels:
+        app: uptime-kuma
+    spec:
+      securityContext:
+        fsGroup: 0   # Uptime Kuma uses user ID 1001
+        runAsUser: 0
+      containers:
+        - name: uptimekuma
+          image: louislam/uptime-kuma:latest
+          ports:
+            - containerPort: 3001
+          volumeMounts:
+            - name: uptimekuma-data
+              mountPath: /app/data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 120
+            periodSeconds: 10
+        - name: db-initializer
+          image: node:18
+          command: ["sh", "-c"]
+          args:
+            - |
+              mkdir -p /work
+              cd /work
+              
+              cp /scripts/setup-uptime-kuma-db.js .
+              
+              echo '{"name": "db-init", "version": "1.0.0", "private": true}' > package.json
+              npm install better-sqlite3
+              
+              echo "Waiting for Uptime Kuma to start..."
+              until wget --spider -q http://localhost:3001; do
+                echo "Waiting for Uptime Kuma web server..."
+                sleep 5
+              done
+              
+              echo "Web server is up, waiting for database..."
+              until [ -f "/app/data/kuma.db" ] && [ -f "/app/data/kuma.db-wal" ]; do
+                echo "Waiting for database WAL mode..."
+                sleep 2
+              done
+              
+              sleep 5
+              
+              echo "Running database initialization..."
+              node setup-uptime-kuma-db.js
+              
+              echo "Database initialization complete. Exiting..."
+              exit 0
+          volumeMounts:
+            - name: uptimekuma-data
+              mountPath: /app/data
+            - name: init-script
+              mountPath: /scripts
+          workingDir: /work
+      volumes:
+        - name: uptimekuma-data
+          emptyDir: {}
+        - name: init-script
+          configMap:
+            name: uptimekuma-init-script10
+      serviceAccount: {{ .Release.Namespace }}-getapp-run-as-root
+      serviceAccountName: {{ .Release.Namespace }}-getapp-run-as-root
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uptimekuma-init-script10
+data:
+  setup-uptime-kuma-db.js: |
+    const Database = require('better-sqlite3');
+    const dbPath = '/app/data/kuma.db';
+
+    function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function initializeDB() {
+    try {
+        console.log("Opening database...");
+        const db = new Database(dbPath, { 
+        readonly: false,
+        fileMustExist: true
+        });
+
+        console.log("Checking if monitors exist...");
+        const row = db.prepare('SELECT COUNT(*) as count FROM monitor').get();
+
+        if (row.count === 0) {
+        console.log("Database is empty. Adding endpoints...");
+        const endpoints = [
+            { name: 'Google', url: 'https://www.google.com' },
+            { name: 'GitHub', url: 'https://www.github.com' },
+            { name: 'Twitter', url: 'https://www.twitter.com' },
+            { name: 'Facebook', url: 'https://www.facebook.com' },
+            { name: 'Amazon', url: 'https://www.amazon.com' },
+            { name: 'Stack Overflow', url: 'https://stackoverflow.com' },
+        ];
+
+        const insertStmt = db.prepare('INSERT INTO monitor (name, url, type, method) VALUES (?, ?, \'http\', \'GET\')');
+        
+        db.transaction(() => {
+            endpoints.forEach(({ name, url }) => {
+            insertStmt.run(name, url);
+            });
+        })();
+
+        console.log("Endpoints added successfully");
+        } else {
+        console.log("Database is not empty. Skipping initialization.");
+        }
+
+        db.close();
+        console.log("Database initialization completed successfully");
+    } catch (error) {
+        console.error("Error during database initialization:", error);
+        process.exit(1);
+    }
+    }
+
+    initializeDB();
+{{- end }}

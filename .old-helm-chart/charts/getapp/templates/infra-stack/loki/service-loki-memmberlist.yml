@@ -1,0 +1,13 @@
+{{- if (include "infra.enabled" .) }}apiVersion: v1
+kind: Service
+metadata:
+  name: loki-memberlist
+spec:
+  clusterIP: None
+  selector:
+    app: loki
+  ports:
+  - port: 7946
+    name: memberlist
+    protocol: TCP
+{{- end }}

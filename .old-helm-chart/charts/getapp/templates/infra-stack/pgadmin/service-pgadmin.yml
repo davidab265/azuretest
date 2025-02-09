@@ -1,0 +1,16 @@
+{{- if (include "infra.enabled" .) }}
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: pgadmin
+# spec:
+#   ports:
+#   - port: 80
+#     protocol: TCP
+#     targetPort: 80
+#     name: http
+#   selector:
+#     app: pgadmin
+#   type: ClusterIP
+{{- end }}

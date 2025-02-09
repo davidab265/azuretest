@@ -1,0 +1,19 @@
+{{- if (include "infra.enabled" .) }}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: kafka-ui
+  labels:
+    getapp: kafka-ui
+    gitlabrelease: "{{ .Values.gitlabrelease }}"
+spec:
+  host: kafka-ui-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  to:
+    kind: Service
+    name: kafka-ui
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+{{- end }}

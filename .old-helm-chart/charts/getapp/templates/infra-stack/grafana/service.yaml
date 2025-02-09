@@ -1,0 +1,16 @@
+{{- if (include "infra.enabled" .) }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+
+spec:
+  ports:
+    - name: service
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP
+  selector:
+    getapp: grafana
+{{- end }}
