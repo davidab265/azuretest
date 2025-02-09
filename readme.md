@@ -2,7 +2,7 @@
 
 This is the list of docker images that or included in this release.
 
-## Release 1.3.47 
+## Release 1.3.48 
 
 **getapp microservices:**
 
