@@ -255,23 +255,11 @@ jobs: ##
           ref: main        
           fetch-depth: 0 # Important for getting all tags and history
                 
-      - name: Test connection to K8s API
-        run: |
-          # Try to reach the API server
-          curl -v --insecure https://${{ secrets.K8S_URL }}:6443/healthz || true
-          
-          # Try alternative port 443
-          curl -v --insecure https://${{ secrets.K8S_URL }}/healthz || true
-          
-          # Show route to the server
-          traceroute ${{ secrets.K8S_URL }} || true
-
       - name: Set up kubectl
         run: |
-          kubectl config set-credentials default-user --token="${{ secrets.K8S_TOKEN }}"
-          kubectl config set-cluster default-cluster --server="https://${{ secrets.K8S_URL }}:6443" --insecure-skip-tls-verify=true
-          kubectl config set-context default-context --cluster=default-cluster --user=default-user --namespace=default
-          kubectl config use-context default-context
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
           
           # Test the connection
           kubectl cluster-info
@@ -280,7 +268,6 @@ jobs: ##
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           TEST_NAMESPACE: getapp-d
-          # kubeconfig: ${{ secrets.KUBE_CONFIG }}
         run: |
           
           # test Deploy using Helm
