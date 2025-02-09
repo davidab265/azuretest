@@ -229,25 +229,25 @@ update_helm_chart:
       else
         echo "$env_file does not exist."
       fi
-      sed -E -i "s,api1":" .*,api":" ${API_TAG},g" integration-chart/values.yml
-      sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" integration-chart/values.yml
-      sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" integration-chart/values.yml
-      sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" integration-chart/values.yml
-      sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" integration-chart/values.yml
-      sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGMENT_TAG},g" integration-chart/values.yml
-      sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" integration-chart/values.yml
-      sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" integration-chart/values.yml
-      sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" integration-chart/values.yml
-      sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" integration-chart/values.yml
-      sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" integration-chart/values.yml
+      sed -E -i "s,api1":" .*,api":" ${API_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGMENT_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" integration-chart/values.yaml
+      sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" integration-chart/values.yaml
 
       # getapp and getmap #
-      sed -E -i "s,configmap":" .*,configmap":" ${CONFIGMAP},g" integration-chart/values.yml
-      sed -E -i "s,routePrefix":" .*,routePrefix":" ${CONFIGMAP},g" integration-chart/values.yml
-      sed -E -i "s,dbName":" .*,dbName":" ${CONFIGMAP},g" integration-chart/values.yml
-      sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${CONFIGMAP},g" integration-chart/values.yml
-      sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" integration-chart/values.yml
-      cat integration-chart/values.yml
+      sed -E -i "s,configmap":" .*,configmap":" ${CONFIGMAP},g" integration-chart/values.yaml
+      sed -E -i "s,routePrefix":" .*,routePrefix":" ${CONFIGMAP},g" integration-chart/values.yaml
+      sed -E -i "s,dbName":" .*,dbName":" ${CONFIGMAP},g" integration-chart/values.yaml
+      sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${CONFIGMAP},g" integration-chart/values.yaml
+      sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" integration-chart/values.yaml
+      cat integration-chart/values.yaml
   artifacts:
     paths:
       - integration-chart/Values.yaml

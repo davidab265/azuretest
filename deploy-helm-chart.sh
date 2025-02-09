@@ -95,13 +95,13 @@ kubectl create secret docker-registry registry-secret \
     --namespace=$NAMESPACE \
     --dry-run=client -o yaml | kubectl apply -f -
 
-# Update values.yml with correct repository
-log $YELLOW "Updating repository in values.yml..."
-sed -i "s|repository:.*|repository: $REGISTRY_URL/$IMAGE_PREFIX/|" helm-chart/values.yml
+# Update values.yaml with correct repository
+log $YELLOW "Updating repository in values.yaml..."
+sed -i "s|repository:.*|repository: $REGISTRY_URL/$IMAGE_PREFIX/|" helm-chart/values.yaml
 
-# Update all instances of getapp-test to getapp-ci in values.yml
-log $YELLOW "Updating namespace values in values.yml..."
-sed -i "s/getapp-test/getapp-ci/g" helm-chart/values.yml
+# Update all instances of getapp-test to getapp-ci in values.yaml
+log $YELLOW "Updating namespace values in values.yaml..."
+sed -i "s/getapp-test/getapp-ci/g" helm-chart/values.yaml
 
 # Deploy using Helm
 log $YELLOW "Deploying Helm chart..."
@@ -109,7 +109,7 @@ helm upgrade --install $RELEASE_NAME ./helm-chart \
     --namespace $NAMESPACE \
     --set imagePullSecrets[0].name=registry-secret \
     --set repository=$REGISTRY_URL/$IMAGE_PREFIX \
-    -f ./helm-chart/values.yml
+    -f ./helm-chart/values.yaml
 
 # Check deployment status
 log $YELLOW "Checking deployment status..."

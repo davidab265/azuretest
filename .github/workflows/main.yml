@@ -143,25 +143,25 @@ jobs: ##
           ./scripts/test-existens-in-harbor.sh
 
           # chart change
-          sed -E -i "s,api":" .*,api":" ${API_TAG},g" helm-chart/values.yml
-          sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" helm-chart/values.yml
-          sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" helm-chart/values.yml
-          sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" helm-chart/values.yml
-          sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" helm-chart/values.yml
-          sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGEMENT_TAG},g" helm-chart/values.yml
-          sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" helm-chart/values.yml
-          sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" helm-chart/values.yml
-          sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" helm-chart/values.yml
-          sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" helm-chart/values.yml
-          sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" helm-chart/values.yml
+          sed -E -i "s,api":" .*,api":" ${API_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,delivery":" .*,delivery":" ${DELIVERY_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,deploy":" .*,deploy":" ${DEPLOY_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,discovery":" .*,discovery":" ${DISCOVERY_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,offering":" .*,offering":" ${OFFERING_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,projectmanagment":" .*,projectmanagment":" ${PROJECT_MANAGEMENT_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,upload":" .*,upload":" ${UPLOAD_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,dashboard":" .*,dashboard":" ${DASHBOARD_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,getmap":" .*,getmap":" ${GETMAP_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,docs":" .*,docs":" ${DOCS_TAG},g" helm-chart/values.yaml
+          sed -E -i "s,gitlabrelease":" .*,gitlabrelease":" ${GETAPP_RELEASE_TAG},g" helm-chart/values.yaml
 
           # getapp and getmap ##
-          sed -E -i "s,configmap":" .*,configmap":" ${NAMESPACE},g" helm-chart/values.yml
-          sed -E -i "s,routePrefix":" .*,routePrefix":" ${NAMESPACE},g" helm-chart/values.yml
-          sed -E -i "s,dbName":" .*,dbName":" ${NAMESPACE},g" helm-chart/values.yml
-          sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" helm-chart/values.yml
-          sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yml
-          cat helm-chart/values.yml
+          sed -E -i "s,configmap":" .*,configmap":" ${NAMESPACE},g" helm-chart/values.yaml
+          sed -E -i "s,routePrefix":" .*,routePrefix":" ${NAMESPACE},g" helm-chart/values.yaml
+          sed -E -i "s,dbName":" .*,dbName":" ${NAMESPACE},g" helm-chart/values.yaml
+          sed -E -i "s,openshiftProjectName":" .*,openshiftProjectName":" ${NAMESPACE},g" helm-chart/values.yaml
+          sed -E -i "s,replicaCount":" .*,replicaCount":" ${replicaCount},g" helm-chart/values.yaml
+          cat helm-chart/values.yaml
 
           # Copy installation scripts to root
           cp scripts/install.sh ./install.sh || true
