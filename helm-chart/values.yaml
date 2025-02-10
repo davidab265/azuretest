@@ -1,18 +1,18 @@
 
 replicaCount: 1
-configmap: getapp-e
-routePrefix: getapp-e
+configmap: getapp-test
+routePrefix: getapp-test
 #routeMainlUrl: apps.sr.eastus.aroapp.io
 routeMainlUrl: apps.getapp.sh
-dbName: getapp-e
+dbName: getapp-test
 namespace:
-    openshiftProjectName: getapp-e
+    openshiftProjectName: getapp-test
 
 # Set to true when deploying to OpenShift
 # This will enable OpenShift-specific security configurations
 isOpenShift: false
 
-gitlabrelease: 1.3.51
+gitlabrelease: 1.3.52
 repository: harbor.getapp.sh/getapp-dev/
 tag:
   api: 1.3.95-develop
