@@ -39,8 +39,8 @@ REGISTRY_USER='robot$test'
 REGISTRY_PASSWORD="T2vciYC4k8I1UUiNv6sXUSmjCQ2g53SK"
 
 # 2] the poject name in the image repository. 
-# for example: in the image name "harbor.getapp.sh/getapp-example/api:1.1.1",  
-# the project name is "getapp-example". you might need to create it a head of time. 
+# for example: in the image name "harbor.getapp.sh/getapp-fxample/api:1.1.1",  
+# the project name is "getapp-fxample". you might need to create it a head of time. 
 IMAGE_PREFIX="getapp-ci"
 
 # 3] the namespace where the images will be loaded.

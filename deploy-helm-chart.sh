@@ -99,9 +99,9 @@ kubectl create secret docker-registry registry-secret \
 log $YELLOW "Updating repository in values.yaml..."
 sed -i "s|repository:.*|repository: $REGISTRY_URL/$IMAGE_PREFIX/|" helm-chart/values.yaml
 
-# Update all instances of getapp-test to getapp-ci in values.yaml
+# Update all instances of getapp-f to getapp-ci in values.yaml
 log $YELLOW "Updating namespace values in values.yaml..."
-sed -i "s/getapp-test/getapp-ci/g" helm-chart/values.yaml
+sed -i "s/getapp-f/getapp-ci/g" helm-chart/values.yaml
 
 # Deploy using Helm
 log $YELLOW "Deploying Helm chart..."

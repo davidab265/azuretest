@@ -20,7 +20,7 @@
 REGISTRY_URL="harbor.company.com"
 REGISTRY_USER="your_username"
 REGISTRY_PASSWORD="your_password"
-IMAGE_PREFIX=${IMAGE_PREFIX:-"getapp-test"}
+IMAGE_PREFIX=${IMAGE_PREFIX:-"getapp-f"}
 NAMESPACE="getapp-dev"
 RELEASE_NAME="getapp"
 #------------------------------------------------------------------------------#

@@ -244,7 +244,7 @@ jobs: ##
       # - get_agent_and_agent_ui
     name: Deploy and Test 
     env:
-      TEST_NAMESPACE: getapp-e #  the namespace where you want to deploy the test environment
+      TEST_NAMESPACE: getapp-f #  the namespace where you want to deploy the test environment
       RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
     runs-on: ubuntu-latest
     steps:
@@ -267,7 +267,7 @@ jobs: ##
       - name: Deploy to test namespace ###
         env:
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          TEST_NAMESPACE: getapp-e
+          TEST_NAMESPACE: getapp-f
         run: |
           
           # test Deploy using Helm
@@ -309,12 +309,12 @@ jobs: ##
   #         # oc create namespace $PROD_NAMESPACE --dry-run=client -o yaml | oc apply -f -
           
   #         # Deploy using Helm
-  #         helm upgrade --install getapp-test ./helm-chart \
+  #         helm upgrade --install getapp-f ./helm-chart \
   #           --namespace $PROD_NAMESPACE \
   #           --create-namespace   \
   #           --set namespace.openshiftProjectName=$TEST_NAMESPACE \
   #           --wait --timeout 5m 
-  #         helm upgrade --install getapp-test ./helm-chart \
+  #         helm upgrade --install getapp-f ./helm-chart \
   #           --namespace $PROD_NAMESPACE \
   #           --create-namespace   \
   #           --set namespace.openshiftProjectName=$TEST_NAMESPACE \
@@ -327,10 +327,10 @@ jobs: ##
   #     - name: Cleanup test deployment
   #       if: always()
   #       env:
-  #         TEST_NAMESPACE: getapp-test
+  #         TEST_NAMESPACE: getapp-f
   #       run: |
   #         # Clean up test namespace
-  #         helm uninstall getapp-test -n $TEST_NAMESPACE || true
+  #         helm uninstall getapp-f -n $TEST_NAMESPACE || true
         
   # zip_images_and_chart_and_upload_to_azure:
   #   needs:

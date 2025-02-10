@@ -18,10 +18,10 @@ tag:
   search: 1.3.41-develop
 
 replicaCount: 1
-configmap: getapp-test
-routePrefix: getapp-test
+configmap: getapp-f
+routePrefix: getapp-f
 routeMainlUrl: apps.sr.eastus.aroapp.io
-dbName: getapp-test
+dbName: getapp-f
 gitlabrelease: 1.3.39
 
 deployment:
@@ -50,7 +50,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: getapp-test.apps.sr.eastus.aroapp.io
+    - host: getapp-f.apps.sr.eastus.aroapp.io
       paths:
         - path: /
           pathType: Prefix

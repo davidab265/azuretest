@@ -39,8 +39,8 @@ REGISTRY_USER='robot$test'
 REGISTRY_PASSWORD="T2vciYC4k8I1UUiNv6sXUSmjCQ2g53SK"
 
 # 2] the poject name in the image repository. 
-# for example: in the image name "harbor.getapp.sh/getapp-example/api:1.1.1",  
-# the project name is "getapp-example". you might need to create it a head of time. 
+# for example: in the image name "harbor.getapp.sh/getapp-fxample/api:1.1.1",  
+# the project name is "getapp-fxample". you might need to create it a head of time. 
 IMAGE_PREFIX="getapp-ci"
 
 # 3] Kubernetes configuration
@@ -220,9 +220,9 @@ kubectl create secret docker-registry registry-secret \
 log $YELLOW "Updating repository in values.yaml..."
 sed -i "s|repository:.*|repository: $REGISTRY_URL/$IMAGE_PREFIX/|" helm-chart/values.yaml
 
-# Update all instances of getapp-test to getapp-ci in values.yaml
+# Update all instances of getapp-f to getapp-ci in values.yaml
 log $YELLOW "Updating namespace values in values.yaml..."
-sed -i "s/getapp-test/getapp-ci/g" helm-chart/values.yaml
+sed -i "s/getapp-f/getapp-ci/g" helm-chart/values.yaml
 
 # Deploy using Helm
 log $YELLOW "Deploying Helm chart..."

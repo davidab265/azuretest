@@ -35,7 +35,7 @@ data:
 
   #gFrogArtifactory
   JFROG_BASE_URL: "http://getapp-dev.getapp.sh:8082/artifactory/"
-  JFROG_REPO: "getapp-test/"
+  JFROG_REPO: "getapp-f/"
   JFROG_USER_NAME: "admin"
   JFROG_PASSWORD: "Get!1@2App&map"
 
