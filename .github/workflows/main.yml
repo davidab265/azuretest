@@ -119,7 +119,7 @@ jobs: ##
           RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PAT_ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
-          NAMESPACE: "getapp-test"
+          NAMESPACE: "getapp-f"
           replicaCount: "1"
         run: |
           #!/bin/bash
