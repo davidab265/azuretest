@@ -1,12 +1,12 @@
 
 replicaCount: 1
-configmap: getapp-test
-routePrefix: getapp-test
+configmap: getapp-e
+routePrefix: getapp-e
 #routeMainlUrl: apps.sr.eastus.aroapp.io
 routeMainlUrl: apps.getapp.sh
-dbName: getapp-test
+dbName: getapp-e
 namespace:
-    openshiftProjectName: getapp-test
+    openshiftProjectName: getapp-e
 
 # Set to true when deploying to OpenShift
 # This will enable OpenShift-specific security configurations
@@ -28,7 +28,7 @@ tag:
 
 
 image:
-  repository: harbor.getapp.sh/getapp-di/
+  repository: harbor.getapp.sh/getapp-dev/
   pullPolicy: IfNotPresent #Always
 
 service:
