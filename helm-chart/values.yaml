@@ -1,12 +1,12 @@
 
 replicaCount: 1
-configmap: getapp-test
-routePrefix: getapp-test
+configmap: getapp-f
+routePrefix: getapp-f
 #routeMainlUrl: apps.sr.eastus.aroapp.io
 routeMainlUrl: apps.getapp.sh
-dbName: getapp-test
+dbName: getapp-f
 namespace:
-    openshiftProjectName: getapp-test
+    openshiftProjectName: getapp-f
 
 # Set to true when deploying to OpenShift
 # This will enable OpenShift-specific security configurations
