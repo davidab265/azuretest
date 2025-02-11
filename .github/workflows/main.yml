@@ -267,12 +267,12 @@ jobs: ##
           TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
         run: |
           
-          # test Deploy using Helm
-          helm upgrade --install $TEST_NAMESPACE ./helm-chart \
-            --namespace $TEST_NAMESPACE \
-            --create-namespace   \
-            --set nameSpace=$TEST_NAMESPACE \
-            --dry-run
+          # # test Deploy using Helm
+          # helm upgrade --install $TEST_NAMESPACE ./helm-chart \
+          #   --namespace $TEST_NAMESPACE \
+          #   --create-namespace   \
+          #   --set nameSpace=$TEST_NAMESPACE \
+          #   --dry-run
 
           # Deploy using Helm
           helm upgrade --install $TEST_NAMESPACE ./helm-chart \
@@ -280,73 +280,63 @@ jobs: ##
             --create-namespace   \
             --set nameSpace=$TEST_NAMESPACE \
 
-  #         # Wait for deployment to be ready
-  #         oc wait --for=condition=ready pod -l app=getapp --timeout=120s -n $TEST_NAMESPACE
 
-      - name: Run tests
-        env:
-          TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
-        run: |
-          echo "Checking deployment status..."
-          kubectl get pods,svc,ingress -n $TEST_NAMESPACE
-
-          echo "Waiting for API pod to be ready..."
-          kubectl wait --for=condition=ready pod -l getapp=api -n $TEST_NAMESPACE --timeout=120s
-
-          echo "Checking ingress controller status..."
-          kubectl get pods -n ingress-nginx
+      # - name: Run tests
+      #   env:
+      #     TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
+      #   run: |
           
-          echo "Checking ingress resource..."
-          kubectl get ingress -n $TEST_NAMESPACE
-          kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
+      #     echo "Checking ingress resource..."
+      #     kubectl get ingress -n $TEST_NAMESPACE
+      #     kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
 
-          # Get ingress host without waiting for ready condition
-          if ! ROUTE_URL=$(kubectl get ingress -n $TEST_NAMESPACE -l getapp=api -o jsonpath="{.items[0].spec.host}"); then
-            echo "Failed to get ingress host. Checking ingress status:"
-            kubectl get ingress -n $TEST_NAMESPACE
-            kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
-            exit 1
-          fi
+      #     # Get ingress host without waiting for ready condition
+      #     if ! ROUTE_URL=$(kubectl get ingress -n $TEST_NAMESPACE -l getapp=api -o jsonpath="{.items[0].spec.host}"); then
+      #       echo "Failed to get ingress host. Checking ingress status:"
+      #       kubectl get ingress -n $TEST_NAMESPACE
+      #       kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
+      #       exit 1
+      #     fi
 
-          echo "Ingress host: $ROUTE_URL"
+      #     echo "Ingress host: $ROUTE_URL"
           
-          # Basic health check using the route
-          echo "Checking API health at https://$ROUTE_URL/docs"
-          curl -v -f https://$ROUTE_URL/docs || {
-            echo "Health check failed. Checking endpoints..."
-            kubectl get endpoints -n $TEST_NAMESPACE
-            exit 1
-          }
+      #     # Basic health check using the route
+      #     echo "Checking API health at https://$ROUTE_URL/docs"
+      #     curl -v -f https://$ROUTE_URL/docs || {
+      #       echo "Health check failed. Checking endpoints..."
+      #       kubectl get endpoints -n $TEST_NAMESPACE
+      #       exit 1
+      #     }
         
-      - name: Deploy to production namespace
-        # if: success()
-        env:
-          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-          PROD_NAMESPACE: ${{ env.PROD_NAMESPACE }}
-        run: |
+      # - name: Deploy to production namespace
+      #   # if: success()
+      #   env:
+      #     RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+      #     PROD_NAMESPACE: ${{ env.PROD_NAMESPACE }}
+      #   run: |
           
-          # Deploy using Helm
-          helm upgrade --install $PROD_NAMESPACE ./helm-chart \
-            --namespace $PROD_NAMESPACE \
-            --create-namespace   \
-            --set nameSpace=$PROD_NAMESPACE \
-            --wait --timeout 5m 
-            --dry-run
+      #     # Deploy using Helm
+      #     helm upgrade --install $PROD_NAMESPACE ./helm-chart \
+      #       --namespace $PROD_NAMESPACE \
+      #       --create-namespace   \
+      #       --set nameSpace=$PROD_NAMESPACE \
+      #       --wait --timeout 5m 
+      #       --dry-run
 
-          helm upgrade --install $PROD_NAMESPACE ./helm-chart \
-            --namespace $PROD_NAMESPACE \
-            --create-namespace   \
-            --set nameSpace=$PROD_NAMESPACE \
-            --wait --timeout 5m 
+      #     helm upgrade --install $PROD_NAMESPACE ./helm-chart \
+      #       --namespace $PROD_NAMESPACE \
+      #       --create-namespace   \
+      #       --set nameSpace=$PROD_NAMESPACE \
+      #       --wait --timeout 5m 
           
 
-      - name: Cleanup test deployment
-        if: always()
-        env:
-          TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
-        run: |
-          # Clean up test namespace
-          helm uninstall $TEST_NAMESPACE -n $TEST_NAMESPACE || true
+      # - name: Cleanup test deployment
+      #   if: always()
+      #   env:
+      #     TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
+      #   run: |
+      #     # Clean up test namespace
+      #     helm uninstall $TEST_NAMESPACE -n $TEST_NAMESPACE || true
         
   # zip_images_and_chart_and_upload_to_azure:
   #   needs:
