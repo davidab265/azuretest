@@ -283,7 +283,7 @@ jobs: ##
           echo "Waiting 2 minutes for deployment, ingress, and certificates to be ready..."
           sleep 120
 
-      - name: Run API Tests
+      - name: Run API Tests #
         env:
           TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
         run: |
