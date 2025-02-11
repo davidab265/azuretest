@@ -291,7 +291,7 @@ jobs: ##
           # oc wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=120s
           
           # Get route URL (using oc command for OpenShift route)
-          ROUTE_URL=$(oc get route -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
+          ROUTE_URL=$(kubectl get ingress -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
           
           # Basic health check using the route
           curl -f https://$ROUTE_URL/docs || exit 1
