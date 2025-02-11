@@ -283,188 +283,188 @@ jobs: ##
           echo "Waiting 2 minutes for deployment, ingress, and certificates to be ready..."
           sleep 120
 
-      - name: Run API Tests #
-        env:
-          TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
-        run: |
-          # Get the API URL
-          ROUTE_URL="api-${TEST_NAMESPACE}.apps.getapp.sh"
-          
-          echo "Running tests with BASE_URL=https://$ROUTE_URL"
-          
-          # Run the test container #
-          docker run --rm \
-            -e BASE_URL="https://$ROUTE_URL" \
-            harbor.getapp.sh/getapp-dev/tester:latest || {
-              echo "Tests failed!"
-              exit 1
-            }
-
-      # - name: Deploy to production namespace
-      #   # if: success()
-      #   env:
-      #     RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-      #     PROD_NAMESPACE: ${{ env.PROD_NAMESPACE }}
-      #   run: |
-          
-      #     # Deploy using Helm
-      #     helm upgrade --install $PROD_NAMESPACE ./helm-chart \
-      #       --namespace $PROD_NAMESPACE \
-      #       --create-namespace   \
-      #       --set nameSpace=$PROD_NAMESPACE \
-      #       --wait --timeout 5m 
-      #       --dry-run
-
-      #     helm upgrade --install $PROD_NAMESPACE ./helm-chart \
-      #       --namespace $PROD_NAMESPACE \
-      #       --create-namespace   \
-      #       --set nameSpace=$PROD_NAMESPACE \
-      #       --wait --timeout 5m 
-          
-
-      # - name: Cleanup test deployment
-      #   if: always()
+      # - name: Run API Tests #
       #   env:
       #     TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
       #   run: |
-      #     # Clean up test namespace
-      #     helm uninstall $TEST_NAMESPACE -n $TEST_NAMESPACE || true
+      #     # Get the API URL
+      #     ROUTE_URL="api-${TEST_NAMESPACE}.apps.getapp.sh"
+          
+      #     echo "Running tests with BASE_URL=https://$ROUTE_URL"
+          
+      #     # Run the test container #
+      #     docker run --rm \
+      #       -e BASE_URL="https://$ROUTE_URL" \
+      #       harbor.getapp.sh/getapp-dev/tester:latest || {
+      #         echo "Tests failed!"
+      #         exit 1
+      #       }
+
+      - name: Deploy to production namespace
+        # if: success()
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          PROD_NAMESPACE: ${{ env.PROD_NAMESPACE }}
+        run: |
+          
+          # Deploy using Helm
+          helm upgrade --install $PROD_NAMESPACE ./helm-chart \
+            --namespace $PROD_NAMESPACE \
+            --create-namespace   \
+            --set nameSpace=$PROD_NAMESPACE \
+            --wait --timeout 5m 
+            --dry-run
+
+          helm upgrade --install $PROD_NAMESPACE ./helm-chart \
+            --namespace $PROD_NAMESPACE \
+            --create-namespace   \
+            --set nameSpace=$PROD_NAMESPACE \
+            --wait --timeout 5m 
+          
+
+      - name: Cleanup test deployment
+        if: always()
+        env:
+          TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
+        run: |
+          # Clean up test namespace
+          helm uninstall $TEST_NAMESPACE -n $TEST_NAMESPACE || true
         
-  # zip_images_and_chart_and_upload_to_azure:
-  #   needs:
-  #     - get_all_microservices_tags
-  #     - calculate_new_tag
-  #     - create_files_with_updated_env
-  #     - get_agent_and_agent_ui
-  #   runs-on: ubuntu-latest
+  zip_images_and_chart_and_upload_to_azure:
+    needs:
+      - get_all_microservices_tags
+      - calculate_new_tag
+      - create_files_with_updated_env
+      - get_agent_and_agent_ui
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  #     - name: zip images
-  #       env:
-  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+      - name: zip images
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
 
-  #       run: |
-  #         chmod +x scripts/getapp-images-to-tar.sh
-  #         ./scripts/getapp-images-to-tar.sh
-  #         mv *.zip getapp-images-$RELEASE_TAG.zip
+        run: |
+          chmod +x scripts/getapp-images-to-tar.sh
+          ./scripts/getapp-images-to-tar.sh
+          mv *.zip getapp-images-$RELEASE_TAG.zip
 
-  #     - name: Download getapp-chart
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: getapp-chart
+      - name: Download getapp-chart
+        uses: actions/download-artifact@v4
+        with:
+          name: getapp-chart
 
-  #     - name: Download agent
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: agent
+      - name: Download agent
+        uses: actions/download-artifact@v4
+        with:
+          name: agent
   
-  #     - name: zip chart and images to one file
-  #       env:
-  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-  #       run: |
-  #         pwd
-  #         ls -la
-  #         # First copy the installation files to current directory
-  #         cp scripts/install.sh scripts/load-images.sh how-to-use-this-repo.md ./ || true
-  #         # Create the full release zip including all components and installation files
-  #         zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip getapp-agent-$RELEASE_TAG.zip install.sh load-images.sh how-to-use-this-repo.md
-  #       shell: bash
+      - name: zip chart and images to one file
+        env:
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+        run: |
+          pwd
+          ls -la
+          # First copy the installation files to current directory
+          cp scripts/install.sh scripts/load-images.sh how-to-use-this-repo.md ./ || true
+          # Create the full release zip including all components and installation files
+          zip getapp-full-release-$RELEASE_TAG.zip getapp-images-$RELEASE_TAG.zip getapp-chart-$RELEASE_TAG.zip getapp-agent-$RELEASE_TAG.zip install.sh load-images.sh how-to-use-this-repo.md
+        shell: bash
         
                       
-  #     - name: Upload file to Azure Storage
-  #       uses: azure/CLI@v1
-  #       env:
-  #         #AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-  #         AZURE_STORAGE_KEY: 2R7B3iZ+NyFOZum+M7Co42jvxGhhGKTVSs276w+605gzSOcdc4jrifQjUtvqLGa/HSXnNhbqm+rS+AStq/q8Iw==
-  #         RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
-  #         AZURE_STORAGE_ACCOUNT: getapprelease
-  #         AZURE_CONTAINER: getapp
+      - name: Upload file to Azure Storage
+        uses: azure/CLI@v1
+        env:
+          #AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          AZURE_STORAGE_KEY: 2R7B3iZ+NyFOZum+M7Co42jvxGhhGKTVSs276w+605gzSOcdc4jrifQjUtvqLGa/HSXnNhbqm+rS+AStq/q8Iw==
+          RELEASE_TAG: ${{ needs.calculate_new_tag.outputs.tag }}
+          AZURE_STORAGE_ACCOUNT: getapprelease
+          AZURE_CONTAINER: getapp
 
-  #       with:
-  #         inlineScript: |
-  #           az storage blob upload \
-  #             --account-name $AZURE_STORAGE_ACCOUNT \
-  #             --account-key $AZURE_STORAGE_KEY \
-  #             --container-name $AZURE_CONTAINER \
-  #             --file getapp-full-release-$RELEASE_TAG.zip \
-  #             --name getapp-full-release-$RELEASE_TAG.zip 
+        with:
+          inlineScript: |
+            az storage blob upload \
+              --account-name $AZURE_STORAGE_ACCOUNT \
+              --account-key $AZURE_STORAGE_KEY \
+              --container-name $AZURE_CONTAINER \
+              --file getapp-full-release-$RELEASE_TAG.zip \
+              --name getapp-full-release-$RELEASE_TAG.zip 
 
 
-  # release:
-  #   name: Create Release
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #   needs: 
-  #     - calculate_new_tag
-  #     - create_files_with_updated_env
-  #     -  zip_images_and_chart_and_upload_to_azure
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0 # Important for getting all tags and history
-  #         ref: main  # Explicitly checkout the latest main branch state
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: 
+      - calculate_new_tag
+      - create_files_with_updated_env
+      -  zip_images_and_chart_and_upload_to_azure
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for getting all tags and history
+          ref: main  # Explicitly checkout the latest main branch state
 
-  #     - name: Create Release
-  #       uses: actions/create-release@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
-  #         release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
-  #         body: |
-  #           ## Downloads link for GetApp system
-  #           [Helm & Docker-compose & Docker images](https://getapprelease.blob.core.windows.net/getapp/getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip)
-  #           Click to download.
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.calculate_new_tag.outputs.tag }}
+          release_name: Release ${{ needs.calculate_new_tag.outputs.tag }}
+          body: |
+            ## Downloads link for GetApp system
+            [Helm & Docker-compose & Docker images](https://getapprelease.blob.core.windows.net/getapp/getapp-full-release-${{ needs.calculate_new_tag.outputs.tag }}.zip)
+            Click to download.
 
-  #           ### Content of the zip file
-  #           The zip file contains:
-  #           1. `getapp-chart-*.zip` - Helm chart, Docker Compose files, and installation scripts
-  #           2. `getapp-images-*.zip` - Docker image files
-  #           3. `getapp-agent-*.zip` - GetApp agent files
-  #           4. Installation files at root level:
-  #              - `install.sh`
-  #              - `load-images.sh`
-  #              - `how-to-use-this-repo.md`
+            ### Content of the zip file
+            The zip file contains:
+            1. `getapp-chart-*.zip` - Helm chart, Docker Compose files, and installation scripts
+            2. `getapp-images-*.zip` - Docker image files
+            3. `getapp-agent-*.zip` - GetApp agent files
+            4. Installation files at root level:
+               - `install.sh`
+               - `load-images.sh`
+               - `how-to-use-this-repo.md`
 
-  #           ### File Structure
-  #           ```
-  #           getapp-full-release-*.zip
-  #           ├── install.sh
-  #           ├── load-images.sh
-  #           ├── how-to-use-this-repo.md
-  #           ├── getapp-chart-*.zip
-  #           │   ├── helm-chart/
-  #           │   │   ├── Chart.yaml
-  #           │   │   ├── values.yaml
-  #           │   │   └── templates/
-  #           │   ├── docker-compose/
-  #           │   ├── scripts/
-  #           │   │   ├── install.sh
-  #           │   │   └── load-images.sh
-  #           │   ├── readme.md
-  #           │   └── how-to-use-this-repo.md
-  #           ├── getapp-images-*.zip
-  #           │   └── images/
-  #           │       └── *.tar
-  #           └── getapp-agent-*.zip
-  #               ├── agent/
-  #               └── agent-ui/
-  #           ```
+            ### File Structure
+            ```
+            getapp-full-release-*.zip
+            ├── install.sh
+            ├── load-images.sh
+            ├── how-to-use-this-repo.md
+            ├── getapp-chart-*.zip
+            │   ├── helm-chart/
+            │   │   ├── Chart.yaml
+            │   │   ├── values.yaml
+            │   │   └── templates/
+            │   ├── docker-compose/
+            │   ├── scripts/
+            │   │   ├── install.sh
+            │   │   └── load-images.sh
+            │   ├── readme.md
+            │   └── how-to-use-this-repo.md
+            ├── getapp-images-*.zip
+            │   └── images/
+            │       └── *.tar
+            └── getapp-agent-*.zip
+                ├── agent/
+                └── agent-ui/
+            ```
 
-  #           ### Quick Installation
-  #           After extracting the release package:
-  #           ```bash
-  #           chmod +x install.sh
-  #           ./install.sh
-  #           ```
-  #           Follow the prompts to configure your registry and deployment settings.
+            ### Quick Installation
+            After extracting the release package:
+            ```bash
+            chmod +x install.sh
+            ./install.sh
+            ```
+            Follow the prompts to configure your registry and deployment settings.
 
-  #           For detailed instructions, see the included `how-to-use-this-repo.md` file.
+            For detailed instructions, see the included `how-to-use-this-repo.md` file.
 
-  #         draft: false
-  #         prerelease: false
+          draft: false
+          prerelease: false
