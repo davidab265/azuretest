@@ -281,32 +281,32 @@ jobs: ##
             --set nameSpace=$TEST_NAMESPACE \
 
 
-      # - name: Run tests
-      #   env:
-      #     TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
-      #   run: |
+      - name: Run tests
+        env:
+          TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
+        run: |
           
-      #     echo "Checking ingress resource..."
-      #     kubectl get ingress -n $TEST_NAMESPACE
-      #     kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
+          echo "Checking ingress resource..."
+          kubectl get ingress -n $TEST_NAMESPACE
+          kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
 
-      #     # Get ingress host without waiting for ready condition
-      #     if ! ROUTE_URL=$(kubectl get ingress -n $TEST_NAMESPACE -l getapp=api -o jsonpath="{.items[0].spec.host}"); then
-      #       echo "Failed to get ingress host. Checking ingress status:"
-      #       kubectl get ingress -n $TEST_NAMESPACE
-      #       kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
-      #       exit 1
-      #     fi
+          # Get ingress host without waiting for ready condition
+          if ! ROUTE_URL=$(kubectl get ingress -n $TEST_NAMESPACE -l getapp=api -o jsonpath="{.items[0].spec.host}"); then
+            echo "Failed to get ingress host. Checking ingress status:"
+            kubectl get ingress -n $TEST_NAMESPACE
+            kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
+            exit 1
+          fi
 
-      #     echo "Ingress host: $ROUTE_URL"
+          echo "Ingress host: $ROUTE_URL"
           
-      #     # Basic health check using the route
-      #     echo "Checking API health at https://$ROUTE_URL/docs"
-      #     curl -v -f https://$ROUTE_URL/docs || {
-      #       echo "Health check failed. Checking endpoints..."
-      #       kubectl get endpoints -n $TEST_NAMESPACE
-      #       exit 1
-      #     }
+          # Basic health check using the route
+          echo "Checking API health at https://$ROUTE_URL/docs"
+          curl -v -f https://$ROUTE_URL/docs || {
+            echo "Health check failed. Checking endpoints..."
+            kubectl get endpoints -n $TEST_NAMESPACE
+            exit 1
+          }
         
       # - name: Deploy to production namespace
       #   # if: success()
