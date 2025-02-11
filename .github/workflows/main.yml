@@ -312,7 +312,7 @@ jobs: ##
             --namespace $PROD_NAMESPACE \
             --create-namespace   \
             --set nameSpace=$PROD_NAMESPACE \
-            --wait --timeout 5m 
+            --wait --timeout 5m \
             --dry-run
 
           helm upgrade --install $PROD_NAMESPACE ./helm-chart \
@@ -336,6 +336,7 @@ jobs: ##
       - calculate_new_tag
       - create_files_with_updated_env
       - get_agent_and_agent_ui
+      - deploy_and_test
     runs-on: ubuntu-latest
 
     steps:
