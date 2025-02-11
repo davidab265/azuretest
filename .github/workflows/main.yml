@@ -283,26 +283,20 @@ jobs: ##
           echo "Waiting 2 minutes for deployment, ingress, and certificates to be ready..."
           sleep 120
 
-      - name: Run tests
+      - name: Run API Tests
         env:
           TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
         run: |
-          echo "Checking ingress resource..."
-          kubectl get ingress -n $TEST_NAMESPACE
-          
-          # Get the API ingress host directly
+          # Get the API URL
           ROUTE_URL="api-${TEST_NAMESPACE}.apps.getapp.sh"
-          echo "Using ingress host: $ROUTE_URL"
           
-          # Basic health check using the route
-          echo "Checking API health at https://$ROUTE_URL/docs"
-          curl -v -f https://$ROUTE_URL/docs || {
-            echo "Health check failed. Checking endpoints..."
-            kubectl get endpoints -n $TEST_NAMESPACE
-            kubectl describe ingress api -n $TEST_NAMESPACE
-            exit 1
-          }
-        
+          # Download test file
+          curl -o test-k6.js https://raw.githubusercontent.com/getappsh/tester/main/test-k6.js
+          
+          # Set environment variable and run test
+          export BASE_URL="https://$ROUTE_URL"
+          node test-k6.js
+
       # - name: Deploy to production namespace
       #   # if: success()
       #   env:
