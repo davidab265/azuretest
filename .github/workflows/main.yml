@@ -295,7 +295,7 @@ jobs: ##
           # Run the test container
           docker run --rm \
             -e BASE_URL="https://$ROUTE_URL" \
-            harbor.getapp.sh/getapp-dev/tester:1.0.3 \
+            harbor.getapp.sh/getapp-dev/tester:latest \
             npm test || {
               echo "Tests failed!"
               exit 1
