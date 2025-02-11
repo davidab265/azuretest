@@ -292,7 +292,7 @@ jobs: ##
           
           echo "Running tests with BASE_URL=https://$ROUTE_URL"
           
-          # Run the test container
+          # Run the test container #
           docker run --rm \
             -e BASE_URL="https://$ROUTE_URL" \
             harbor.getapp.sh/getapp-dev/tester:latest \
