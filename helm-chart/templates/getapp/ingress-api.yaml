@@ -18,10 +18,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+    - api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
     secretName: api-tls
   rules:
-  - host: api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  - host: api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
     http:
       paths:
       - path: /
@@ -30,5 +30,5 @@ spec:
           service:
             name: getapp
             port:
-              number: 80
+              number: 3000
 {{- end }}

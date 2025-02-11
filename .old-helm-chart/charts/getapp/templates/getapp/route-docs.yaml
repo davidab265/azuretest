@@ -10,7 +10,7 @@ metadata:
     heritage: {{ .Release.Service }}
     gitlabrelease: "{{ .Values.gitlabrelease }}"
 spec:
-  host: docs-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  host: docs-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
   to:
     kind: Service
     name: docs

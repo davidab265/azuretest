@@ -18,10 +18,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - dashboard-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+    - dashboard-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
     secretName: dashboard-tls
   rules:
-  - host: dashboard-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  - host: dashboard-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
     http:
       paths:
       - path: /
@@ -30,5 +30,5 @@ spec:
           service:
             name: dashboard
             port:
-              number: 80
+              number: 3002
 {{- end }}

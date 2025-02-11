@@ -11,7 +11,7 @@ metadata:
     heritage: {{ .Release.Service }}
     gitlabrelease: "{{ .Values.gitlabrelease }}"
 spec:
-  host: api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  host: api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
   to:
     kind: Service
     name: getapp

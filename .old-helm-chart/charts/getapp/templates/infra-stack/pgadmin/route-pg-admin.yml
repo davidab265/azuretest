@@ -8,7 +8,7 @@ metadata:
     getapp: pgadmin
     gitlabrelease: "{{ .Values.gitlabrelease }}"
 spec:
-  host: pgadmin-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  host: pgadmin-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
   to:
     kind: Service
     name: pgadmin

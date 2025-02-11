@@ -2,14 +2,14 @@
 
 API URL:
 --------
-https://api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+https://api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
 
 Swagger UI URL:
 --------------
-https://api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/docs/
+https://api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}/docs/
 
 Dashboard URL:
 -------------
-https://dashboard-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+https://dashboard-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
 
 Note: These URLs are configured through OpenShift routes and use TLS edge termination.

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "getapp-{{ .Values.configmap }}"
+  name: "getapp-{{ .Values.nameSpace }}"
   labels:
     getapp: api
     chart: {{ template "getapp-api.chart" . }}
@@ -19,7 +19,7 @@ data:
   COOKIE_KEY: "KEYCLOAK_JWT"
 
   # Kafka
-  KAFKA_BROKER_URL: "kafka-broker-service.{{ .Values.configmap }}.svc.cluster.local:9092"
+  KAFKA_BROKER_URL: "kafka-broker-service.{{ .Values.nameSpace }}.svc.cluster.local:9092"
   KAFKAJS_NO_PARTITIONER_WARNING: "1"
 
   # Microservice client
@@ -53,7 +53,7 @@ data:
   DOWNLOAD_URL_EXPIRE: "3600"
 
   # integration test envs
-  SERVER_URL: "api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/api/"
+  SERVER_URL: "api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}/api/"
   TEST_USERNAME: "rony@example.com"
   TEST_PASSWORD: "rony123"
   COMPONENT_NAME: "test-demo"

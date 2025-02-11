@@ -19,7 +19,7 @@
 #           - role: pod
 #             namespaces:
 #               names:
-#                 - {{ .Values.configmap }}
+#                 - {{ .Values.nameSpace }}
 #         pipeline_stages:
 #           - docker: {}
 #         relabel_configs:

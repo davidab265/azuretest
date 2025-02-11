@@ -10,7 +10,7 @@ metadata:
     heritage: {{ .Release.Service }}
     gitlabrelease: "{{ .Values.gitlabrelease }}"
 spec:
-  host: dashboard-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  host: dashboard-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
   to:
     kind: Service
     name: dashboard

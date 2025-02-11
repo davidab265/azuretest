@@ -11,7 +11,7 @@ metadata:
     heritage: {{ .Release.Service }}
     gitlabrelease: "{{ .Values.gitlabrelease }}"
 spec:
-  host: grafana-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  host: grafana-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
   to:
     kind: Service
     name: grafana

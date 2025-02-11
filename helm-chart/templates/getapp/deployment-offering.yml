@@ -34,7 +34,7 @@ spec:
           #     command:
           #       - curl
           #       - '-f'
-          #       - '{{ .Values.webProtocol }}api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/api/offering/checkHealth'
+          #       - '{{ .Values.webProtocol }}api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}/api/offering/checkHealth'
           #   initialDelaySeconds: 60
           #   timeoutSeconds: 3
           #   periodSeconds: 30
@@ -67,12 +67,12 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: "getapp-{{ .Values.configmap }}"
+                name: "getapp-{{ .Values.nameSpace }}"
           # env:
           #   - name: POSTGRES_PASSWORD   # Name of the environment variable
           #     valueFrom:
           #       secretKeyRef:
-          #         name: "postgres-{{ .Values.configmap }}-pguser-postgres-{{ .Values.configmap }}"
+          #         name: "postgres-{{ .Values.nameSpace }}-pguser-postgres-{{ .Values.nameSpace }}"
           #         key: password
           resources:
 {{ toYaml .Values.resources | indent 12 }}

@@ -53,7 +53,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: "dashboard-{{ .Values.configmap }}"
+                name: "dashboard-{{ .Values.nameSpace }}"
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.imagePullSecrets }}

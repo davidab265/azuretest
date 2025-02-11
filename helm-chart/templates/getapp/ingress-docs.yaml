@@ -18,10 +18,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - docs-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+    - docs-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
     secretName: docs-tls
   rules:
-  - host: docs-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}
+  - host: docs-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}
     http:
       paths:
       - path: /

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "getmap-node-{{ .Values.configmap }}"
+  name: "getmap-node-{{ .Values.nameSpace }}"
   labels:
     getapp: getmap
     chart: {{ template "getapp-api.chart" . }}
@@ -24,4 +24,4 @@ data:
   TARGET_RESOLUTION: '17'
   MC_CSW_REF_DATE: '2023-10-15T00:00:01Z'
   PROXY_DOWNLOAD_BASE_URL: 'https://proxy-getmap-files.getapp.sh'
-  LIBOT_CALLBACK_URL: 'https://api-{{ .Values.routePrefix }}.{{ .Values.routeMainlUrl }}/api/map/export-notification'
+  LIBOT_CALLBACK_URL: 'https://api-{{ .Values.nameSpace }}.{{ .Values.routeMainlUrl }}/api/map/export-notification'

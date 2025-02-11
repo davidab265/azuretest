@@ -1,7 +1,7 @@
 # kind: PostgresCluster
 # apiVersion: postgres-operator.crunchydata.com/v1beta1
 # metadata:
-#   name: "postgres-{{ .Values.configmap }}"
+#   name: "postgres-{{ .Values.nameSpace }}"
 # spec:
 #   backups:
 #     pgbackrest:
@@ -23,7 +23,7 @@
 #             storage: 1Gi
 #       replicas: 1
 #   databases:
-#     - name: {{ .Values.configmap }}
+#     - name: {{ .Values.nameSpace }}
 #       template: template1
 #       owner: postgres
 #       lcCollate: "en_US.UTF-8"
