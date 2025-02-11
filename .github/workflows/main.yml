@@ -287,13 +287,21 @@ jobs: ##
         env:
           TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
         run: |
-          # # Wait for route to be ready
-          # oc wait --for=condition=ready route -l app=getapp -n $TEST_NAMESPACE --timeout=120s
-          
-          # Get route URL (using oc command for OpenShift route)
-          ROUTE_URL=$(kubectl get ingress -l app=getapp -n $TEST_NAMESPACE -o jsonpath="{.items[0].spec.host}")
+          # Wait for ingress to be ready
+          kubectl wait --for=condition=ready ingress -l getapp=api -n $TEST_NAMESPACE --timeout=120s
+
+          # Verify ingress exists and get its host
+          if ! ROUTE_URL=$(kubectl get ingress -n $TEST_NAMESPACE -l getapp=api -o jsonpath="{.items[0].spec.host}"); then
+            echo "Failed to get ingress host. Checking ingress status:"
+            kubectl get ingress -n $TEST_NAMESPACE
+            kubectl describe ingress -n $TEST_NAMESPACE -l getapp=api
+            exit 1
+          fi
+
+          echo "Ingress host: $ROUTE_URL"
           
           # Basic health check using the route
+          echo "Checking API health at https://$ROUTE_URL/docs"
           curl -f https://$ROUTE_URL/docs || exit 1
         
       - name: Deploy to production namespace
@@ -317,8 +325,6 @@ jobs: ##
             --set nameSpace=$PROD_NAMESPACE \
             --wait --timeout 5m 
           
-          # # Wait for deployment to be ready
-          # oc wait --for=condition=ready pod -l app=getapp --timeout=300s -n $PROD_NAMESPACE
 
       - name: Cleanup test deployment
         if: always()
