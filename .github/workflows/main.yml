@@ -290,12 +290,16 @@ jobs: ##
           # Get the API URL
           ROUTE_URL="api-${TEST_NAMESPACE}.apps.getapp.sh"
           
-          # Download test file
-          curl -o test-k6.js https://raw.githubusercontent.com/getappsh/tester/main/test-k6.js
+          echo "Running tests with BASE_URL=https://$ROUTE_URL"
           
-          # Set environment variable and run test
-          export BASE_URL="https://$ROUTE_URL"
-          node test-k6.js
+          # Run the test container
+          docker run --rm \
+            -e BASE_URL="https://$ROUTE_URL" \
+            harbor.getapp.sh/getapp-dev/tester:1.0.3 \
+            npm test || {
+              echo "Tests failed!"
+              exit 1
+            }
 
       # - name: Deploy to production namespace
       #   # if: success()
