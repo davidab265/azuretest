@@ -283,22 +283,22 @@ jobs: ##
           echo "Waiting 2 minutes for deployment, ingress, and certificates to be ready..."
           sleep 120
 
-      # - name: Run API Tests #
-      #   env:
-      #     TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
-      #   run: |
-      #     # Get the API URL
-      #     ROUTE_URL="api-${TEST_NAMESPACE}.apps.getapp.sh"
+      - name: Run API Tests #
+        env:
+          TEST_NAMESPACE: ${{ env.TEST_NAMESPACE }}
+        run: |
+          # Get the API URL
+          ROUTE_URL="api-${TEST_NAMESPACE}.apps.getapp.sh"
           
-      #     echo "Running tests with BASE_URL=https://$ROUTE_URL"
+          echo "Running tests with BASE_URL=https://$ROUTE_URL"
           
-      #     # Run the test container #
-      #     docker run --rm \
-      #       -e BASE_URL="https://$ROUTE_URL" \
-      #       harbor.getapp.sh/getapp-dev/tester:latest || {
-      #         echo "Tests failed!"
-      #         exit 1
-      #       }
+          # Run the test container #
+          docker run --rm \
+            -e BASE_URL="https://$ROUTE_URL" \
+            harbor.getapp.sh/getapp-dev/tester:latest || {
+              echo "Tests failed!"
+              exit 1
+            }
 
       - name: Deploy to production namespace
         # if: success()
